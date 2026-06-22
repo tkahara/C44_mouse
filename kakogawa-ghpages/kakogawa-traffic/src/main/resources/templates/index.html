@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html xmlns:th="http://thymeleaf.org" lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>加古川市道路取り締まり情報ポータル</title>
+<style>
+/* 背景：画面全体を優しく包む最背面（他の全画面と完全統一） */
+body {
+background-color: #F7FCFF !important;
+font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', sans-serif;
+min-height: 100vh;
+margin: 0;
+}
+/* 画面中央に配置するラッパー（他の全画面と完全統一） */
+.wrapper {
+min-height: 100vh;
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+padding: 40px 20px;
+box-sizing: border-box;
+gap: 25px; /* 各パーツ同士の間隔 */
+}
+/* 最上部の大ロゴ画像を包むコンテナ */
+.top-logo-container {
+text-align: center;
+width: 100%;
+}
+.top-logo-img {
+width: 130px !important;
+height: 130px !important;
+min-width: 130px !important;
+min-height: 130px !important;
+object-fit: contain;
+filter: drop-shadow(0 4px 14px rgba(3, 169, 244, 0.25));
+}
+/* 外側の枠（一般用：水色チェック - 他画面とサイズや余白、位置を厳密に完全固定） */
+.outer-box {
+width: 100%;
+max-width: 680px;
+background-color: #ffffff;
+background-image:
+linear-gradient(90deg, rgba(3, 169, 244, 0.15) 50%, transparent 50%),
+linear-gradient(rgba(3, 169, 244, 0.15) 50%, transparent 50%);
+background-size: 30px 30px;
+border: 3px solid #81D4FA;
+border-radius: 24px;
+padding: 40px;
+box-shadow: 0 12px 35px rgba(3, 169, 244, 0.1);
+box-sizing: border-box;
+}
+/* 内側の白いメインカード（パディング感を他画面と完全統一） */
+.portal-card {
+background-color: #ffffff;
+border: 1px solid #E1F5FE;
+border-radius: 16px;
+padding: 45px 30px;
+box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+box-sizing: border-box;
+display: flex;
+flex-direction: column;
+align-items: center;
+width: 100%;
+}
+/* 最上部ロゴ風タイトル */
+.logo-area {
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 8px;
+font-size: 1.4rem;
+font-weight: bold;
+color: #444444;
+margin-bottom: 5px;
+}
+/* メインタイトル */
+.inner-title {
+font-size: 2.2rem !important;
+font-weight: bold;
+text-align: center;
+color: #333333;
+margin-bottom: 25px;
+margin-top: 0;
+letter-spacing: 0.05em;
+line-height: 1.3;
+}
+/* 説明文の箱 */
+.description-box {
+width: 100%;
+max-width: 460px;
+font-size: 1.1rem;
+line-height: 1.7;
+color: #555555;
+text-align: center;
+margin-bottom: 40px;
+box-sizing: border-box;
+}
+/* ボタンを並べるコンテナ */
+.button-container {
+width: 100%;
+max-width: 360px;
+display: flex;
+flex-direction: column;
+gap: 24px;
+box-sizing: border-box;
+}
+/* 共通：立体ボタンのベーススタイル */
+.custom-portal-btn {
+width: 100% !important;
+display: flex !important;
+align-items: center;
+justify-content: center;
+gap: 12px;
+box-sizing: border-box !important;
+text-decoration: none !important;
+border-left: none !important;
+border-right: none !important;
+border-radius: 16px !important;
+padding: 1.2rem 0 !important;
+font-size: 1.35rem !important;
+font-weight: bold;
+color: #ffffff !important;
+text-align: center;
+cursor: pointer;
+transition: all 0.1s ease !important;
+text-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
+}
+/* 共通：アイコンの CSS 設定 */
+.portal-btn-icon {
+width: 24px;
+height: 24px;
+fill: none;
+stroke: #ffffff;
+stroke-width: 2.5;
+stroke-linecap: round;
+stroke-linejoin: round;
+display: inline-block;
+vertical-align: middle;
+filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.2));
+}
+/* 💙 水色（投稿用） */
+.btn-blue {
+background: linear-gradient(180deg, #4ad3ff 0%, #0099ff 50%, #0077dd 100%) !important;
+border-top: 1px solid #80e0ff !important;
+border-bottom: 5px solid #0044aa !important;
+box-shadow: 0 8px 20px rgba(0, 153, 255, 0.3) !important;
+}
+.btn-blue:hover {
+background: linear-gradient(180deg, #70dcff 0%, #22aaff 50%, #1188ff 100%) !important;
+box-shadow: 0 10px 25px rgba(0, 153, 255, 0.4) !important;
+}
+/* 🧡 オレンジのスタイル（閲覧用） */
+.btn-orange {
+background: linear-gradient(180deg, #FF9F43 0%, #FF6B6B 50%, #EE5253 100%) !important;
+border-top: 1px solid #FFAF5E !important;
+border-bottom: 5px solid #A71D1D !important;
+box-shadow: 0 8px 20px rgba(238, 82, 83, 0.3) !important;
+}
+.btn-orange:hover {
+background: linear-gradient(180deg, #FFAF5E 0%, #FF7B7B 50%, #F06262 100%) !important;
+box-shadow: 0 10px 25px rgba(238, 82, 83, 0.4) !important;
+}
+/* ボタンを押したときの沈み込み動作 */
+.custom-portal-btn:active {
+transform: translateY(3px);
+box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15) !important;
+}
+.btn-blue:active { border-bottom: 2px solid #0044aa !important; }
+.btn-orange:active { border-bottom: 2px solid #A71D1D !important; }
+
+/* 枠外の一番下に自然に並ぶ管理者用リンク（常に右下に配置） */
+.admin-link-container {
+width: 100%;
+max-width: 680px;
+display: flex;
+justify-content: flex-end !important; /* PC・スマホ共通で常に右寄せ */
+margin-top: 5px;
+box-sizing: border-box;
+padding-right: 10px;
+}
+.admin-link-container a {
+display: inline-flex;
+align-items: center;
+gap: 6px;
+background-color: #ffffff;
+color: #6c757d;
+border: 1px solid #dee2e6;
+padding: 8px 14px;
+font-size: 0.9rem;
+font-weight: bold;
+text-decoration: none;
+border-radius: 8px;
+box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+transition: all 0.2s ease;
+}
+.admin-link-container a:hover {
+background-color: #f8f9fa;
+color: #495057;
+border-color: #ced4da;
+}
+/* 📱 スマホ対応ブレイクポイント（他の全画面と完全連動・完全同期） */
+@media (max-width: 576px) {
+/* 画面端の全体パディング */
+.wrapper {
+padding: 40px 20px;
+gap: 15px; /* 上下のパーツ間隔を少し詰めて画面内に収まりやすく */
+}
+/* 最上部大ロゴのスマホ縮小設定 */
+.top-logo-img {
+width: 100px !important;
+height: 100px !important;
+min-width: 100px !important;
+min-height: 100px !important;
+}
+/* 外枠チェック柄のスマホサイズ（他画面と共通の余白感） */
+.outer-box {
+padding: 40px;
+border-radius: 24px;
+}
+/* 内側の白いメインカードのスマホパディング */
+.portal-card {
+padding: 35px 20px;
+border-radius: 16px;
+}
+/* ロゴエリア */
+.logo-area {
+font-size: 1.2rem;
+}
+/* メインタイトルのサイズ縮小（はみ出しや変な改行を綺麗に防止） */
+.inner-title {
+font-size: 1.5rem !important;
+margin-bottom: 15px;
+}
+/* 案内案内文の調整 */
+.description-box {
+font-size: 0.95rem;
+margin-bottom: 25px;
+line-height: 1.6;
+}
+/* ボタン同士の隙間 */
+.button-container {
+gap: 16px;
+}
+/* 立体ボタンの文字サイズと押しやすさの調整 */
+.custom-portal-btn {
+font-size: 1.15rem !important;
+padding: 1rem 0 !important;
+}
+/* スマホ時も右下固定を維持するためのマージン補正 */
+.admin-link-container {
+margin-top: 10px;
+padding-right: 4px; /* スマホの画面端に寄りすぎないよう微調整 */
+}
+}
+</style>
+</head>
+<body>
+<div class="wrapper">
+<div class="top-logo-container">
+<img src="/4.png" th:src="@{/4.png}" class="top-logo-img" alt="ポータルロゴ">
+</div>
+<div class="outer-box">
+<div class="portal-card">
+<div class="logo-area">
+🚨 加古川市
+</div>
+<h1 class="inner-title">道路取り締まり共有ポータル</h1>
+<div class="description-box">
+市内の安全運転向上と取り締まり情報の共有のためのウェブサイトです。以下から目的の画面を選択してください。
+</div>
+<div class="button-container">
+<a th:href="@{/user/post}" class="custom-portal-btn btn-blue">
+<svg class="portal-btn-icon" viewBox="0 0 24 24">
+<path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
+</svg>
+<span>取り締まり情報を投稿する</span>
+</a>
+<!-- 🛠️【動線修正】直接リストではなく、日付選択を挟むためにカレンダー（/user/calendar）へ誘導 -->
+<a th:href="@{/user/calendar}" class="custom-portal-btn btn-orange">
+<svg class="portal-btn-icon" viewBox="0 0 24 24">
+<circle cx="11" cy="11" r="7"/>
+<path d="M21 21l-4.3-4.3"/>
+</svg>
+<span>最新情報を見る</span>
+</a>
+</div>
+</div>
+</div> 
+<div class="admin-link-container">
+ <!-- 🔄 リンク先を /admin/ から、認証ゲートである /login へピンポイント修正 -->
+ <a th:href="@{/login}">
+ <span>🛡️</span>
+ <span>管理者用ページ</span>
+ </a>
+ </div>
+</div>
+</body>
+</html>

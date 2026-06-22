@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html xmlns:th="http://thymeleaf.org" lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>登録された最新の取り締まり情報</title>
+<style>
+/* 背景：画面全体を優しく包む最背面（TOP と完全統一） */
+body {
+background-color: #F7FCFF !important;
+font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 
+'Hiragino Sans', sans-serif;
+min-height: 100vh;
+margin: 0;
+}
+/* 画面中央に配置するラッパー（TOP と完全統一） */
+.wrapper {
+min-height: 100vh;
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+padding: 40px 20px;
+box-sizing: border-box;
+gap: 25px;
+}
+/* 外側の枠（水色チェック） */
+.outer-box {
+width: 100%;
+max-width: 680px;
+background-color: #ffffff;
+background-image:
+linear-gradient(90deg, rgba(3, 169, 244, 0.15) 50%, transparent 50%),
+linear-gradient(rgba(3, 169, 244, 0.15) 50%, transparent 50%);
+background-size: 30px 30px;
+border: 3px solid #81D4FA;
+border-radius: 24px;
+padding: 40px;
+box-shadow: 0 12px 35px rgba(3, 169, 244, 0.1);
+box-sizing: border-box;
+}
+/* 内側の白いメインカード（TOP のパディングを基準に踏襲） */
+.main-card {
+background-color: #ffffff;
+border: 1px solid #E1F5FE;
+border-radius: 16px;
+padding: 45px 30px;
+box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+box-sizing: border-box;
+width: 100%;
+}
+/* ヘッダーエリア */
+.card-header-flex {
+display: flex;
+justify-content: space-between;
+align-items: center;
+border-bottom: 2px solid #E1F5FE;
+padding-bottom: 20px;
+margin-bottom: 20px;
+width: 100%;
+}
+/* メインタイトル */
+.inner-title {
+font-size: 1.8rem !important;
+font-weight: bold;
+color: #333333;
+margin: 0;
+letter-spacing: 0.05em;
+}
+/* 🏠 TOP に戻る・詳細用のぷっくり立体ブルーボタン */
+.btn-back-home {
+display: inline-block;
+background: linear-gradient(180deg, #E1F5FE 0%, #B3E5FC 50%, #81D4FA 100%) !important;
+border-top: 1px solid #ffffff !important;
+border-left: 1px solid #B3E5FC !important;
+border-right: 1px solid #B3E5FC !important;
+border-bottom: 4px solid #0288D1 !important;
+border-radius: 12px;
+padding: 10px 22px;
+font-size: 1rem;
+font-weight: bold;
+color: #01579B !important;
+text-decoration: none;
+cursor: pointer;
+transition: all 0.1s ease;
+box-shadow: 0 4px 10px rgba(3, 169, 244, 0.15);
+}
+.btn-back-home:hover {
+background: linear-gradient(180deg, #B3E5FC 0%, #81D4FA 50%, #4FC3F7 100%) !important;
+color: #004d40;
+}
+.btn-back-home:active {
+border-bottom: 1px solid #0288D1 !important;
+transform: translateY(3px);
+box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+/* 📅 追加：並び替え用ボタングループのコンテナ */
+.sort-container {
+display: flex;
+justify-content: flex-end;
+gap: 10px;
+margin-bottom: 25px;
+width: 100%;
+}
+/* 📅 追加：並び替えボタン単体のぷっくり立体ライトグレー/水色デザイン */
+.btn-sort-item {
+    display: inline-block;
+    background: linear-gradient(180deg, #ffffff 0%, #F4FBF7 100%); /* ほんのり緑がかった白 */
+    border: 1px solid #A5D6A7; /* 薄い緑の枠線 */
+    border-bottom: 3px solid #81C784; /* 少し濃い緑で立体感 */
+    border-radius: 8px;
+    padding: 6px 14px;
+    font-size: 0.9rem;
+    font-weight: bold;
+    color: #2E7D32; /* 読みやすい濃い目の緑文字 */
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.1s ease;
+}
+
+/* 📅 並び替えボタン：選択中（綺麗な薄い緑のグラデーション） */
+.btn-sort-item.active {
+    background: linear-gradient(180deg, #E8F5E9 0%, #C8E6C9 100%); /* 優しい薄緑 */
+    border: 1px solid #A5D6A7;
+    border-bottom: 3px solid #4CAF50; /* 選択中を強調する緑 */
+    color: rgb(17, 112, 10); /* 濃い目の緑文字 */
+}
+
+/* 📅 並び替えボタン：ホバー時 */
+.btn-sort-item:hover {
+    background: #E8F5E9; /* ふんわり薄緑 */
+    color: #1B5E20;
+    opacity: 0.9;
+}
+
+/* 📅 並び替えボタン：クリック時（カチッと沈む動き） */
+.btn-sort-item:active {
+    border-bottom: 1px solid #A5D6A7;
+    transform: translateY(2px);
+}
+/* データがない時の案内表示 */
+.no-data-alert {
+background-color: #f8f9fa;
+color: #6c757d;
+border: 1px solid #e9ecef;
+padding: 25px;
+border-radius: 12px;
+text-align: center;
+font-weight: bold;
+font-size: 1.1rem;
+}
+/* 投稿カード一件ずつ */
+.info-card-item {
+display: flex;
+justify-content: space-between;
+align-items: center;
+background-color: #ffffff;
+border-radius: 16px;
+padding: 24px;
+margin-bottom: 20px;
+box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+box-sizing: border-box;
+width: 100%;
+transition: transform 0.2s ease;
+}
+.info-card-item:hover {
+transform: translateY(-2px);
+}
+/* 👑 左端線のクラス設定 */
+.border-admin {
+border-left: 6px solid #FF9800 !important;
+border-top: 1px solid #FFE0B2;
+border-right: 1px solid #FFE0B2;
+border-bottom: 1px solid #FFE0B2;
+background-color: #FFFDF9;
+}
+.border-police {
+border-left: 6px solid #0288D1 !important;
+border-top: 1px solid #E1F5FE;
+border-right: 1px solid #E1F5FE;
+border-bottom: 1px solid #E1F5FE;
+background-color: #F8FCFF;
+}
+.border-user {
+border-left: 6px solid #03A9F4 !important;
+border-top: 1px solid #E1F5FE;
+border-right: 1px solid #E1F5FE;
+border-bottom: 1px solid #E1F5FE;
+background-color: #FAFDFF;
+}
+/* カード内のコンテンツ配置 */
+.content-group {
+display: flex;
+flex-direction: column;
+align-items: flex-start;
+gap: 8px;
+width: 100%;
+word-break: break-all;
+}
+/* 投稿者バッジ */
+.custom-badge {
+display: inline-block;
+padding: 4px 10px;
+font-size: 0.85rem;
+font-weight: bold;
+color: #ffffff;
+border-radius: 8px;
+}
+.bg-admin-badge { background-color: #FF9800; }
+.bg-police-badge { background-color: #0288D1; }
+.bg-user-badge { background-color: #868e96; }
+/* 目撃日時・場所 */
+.text-date-title { font-size: 1.3rem; font-weight: bold; color: #333333; margin: 0; }
+.text-location-desc { font-size: 1.1rem; color: #444444; margin: 0; line-height: 1.4; }
+
+/* 🛠️ 【detail.htmlと完全統一】フッター＆戻るボタンスタイル */
+.detail-footer {
+display: flex;
+justify-content: space-between;
+align-items: center;
+margin-top: 35px;
+width: 100%;
+box-sizing: border-box;
+padding: 0 4px;
+}
+.btn-back-custom {
+display: inline-block;
+background: linear-gradient(180deg, #ffffff 0%, #F0F9FF 100%) !important;
+border: 2px solid #03A9F4 !important;
+color: #0288D1 !important;
+padding: 0.6rem 1.4rem;
+font-size: 1.05rem;
+font-weight: bold;
+border-radius: 12px;
+text-decoration: none;
+transition: all 0.1s ease;
+box-shadow: 0 3px 10px rgba(3, 169, 244, 0.1);
+text-align: center;
+cursor: pointer;
+}
+.btn-back-custom:hover {
+background: #E1F5FE !important;
+color: #01579B !important;
+border-color: #0288D1 !important;
+}
+.btn-back-custom:active {
+transform: translateY(2px);
+box-shadow: 0 1px 4px rgba(3, 169, 244, 0.05);
+}
+
+/* 🔍 詳細・カレンダー用の共通立体ベーススタイル（旧btn-back-homeの役割） */
+.btn-3d-base {
+display: inline-block;
+border-top: 1px solid #ffffff !important;
+border-radius: 12px;
+font-weight: bold;
+text-decoration: none;
+cursor: pointer;
+transition: all 0.1s ease;
+}
+.btn-3d-base:active {
+border-bottom: 1px solid threedshadow !important;
+transform: translateY(3px);
+box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+/* 📱 スマホ・タブレット用レスポンシブ対応 */
+@media (max-width: 576px) {
+.wrapper { padding: 40px 20px; gap: 25px; }
+.outer-box { padding: 40px; border-radius: 24px; }
+.main-card { padding: 35px 20px; border-radius: 16px; }
+.card-header-flex { flex-direction: column; align-items: stretch; gap: 16px; padding-bottom: 15px; margin-bottom: 20px; }
+.inner-title { font-size: 1.4rem !important; text-align: center; line-height: 1.4; }
+.sort-container { justify-content: center; margin-bottom: 15px; }
+.info-card-item { flex-direction: column; align-items: flex-start; gap: 10px; padding: 18px 14px; margin-bottom: 12px; }
+.text-date-title { font-size: 1.1rem; }
+.text-location-desc { font-size: 1rem; }
+/* スマホの時だけ並び替えボタンを少しコンパクトにする設定 */
+.btn-sort-item {
+    padding: 6px 10px;
+    font-size: 0.8rem;
+}
+
+/* 📱 レスポンシブ時の戻るボタンの挙動調整 */
+.detail-footer {
+flex-direction: column;
+gap: 16px;
+align-items: stretch;
+margin-top: 25px;
+}
+.btn-back-custom {
+width: 100%;
+padding: 12px 0;
+box-sizing: border-box;
+}
+}
+</style>
+</head>
+<body>
+<div class="wrapper">
+<div class="outer-box">
+<div class="main-card">
+    <!-- 上部ヘッダーエリア -->
+    <div class="card-header-flex">
+        <h1 class="inner-title">
+            📌 <span th:text="${selectedDate == 'すべての期間' ? '最新情報一覧' : selectedDate + ' の情報'}">最新情報一覧</span>
+        </h1>
+    </div>
+
+    <!-- 🛠️ TOPに戻るボタン（detail.htmlと完全同一の仕様・クラス・配置構造に修正） -->
+    <div class="detail-footer" style="margin-top: 0; margin-bottom: 25px;">
+        <a th:href="@{/}" class="btn-back-custom">TOPに戻る</a>
+    </div>
+
+    <!-- 並び替えボタングループの配置 -->
+    <div class="sort-container" th:if="${selectedDate == 'すべての期間'}">
+        <a th:href="@{/user/list(sort='desc')}" class="btn-sort-item" th:classappend="${currentSort == 'desc'} ? 'active' : ''">
+            ⏳ 新しい順（降順）
+        </a>
+        <a th:href="@{/user/list(sort='asc')}" class="btn-sort-item" th:classappend="${currentSort == 'asc'} ? 'active' : ''">
+            ⏳ 古い順（昇順）
+        </a>
+    </div>
+	    <!-- データが一件もない場合のメッセージ -->
+	    <div th:if="${#lists.isEmpty(enforcements)}" class="no-data-alert">
+	        現在、投稿されている取り締まり情報はありません。
+	    </div>
+
+	    <!-- 縦並びの情報カード群 -->
+	    <div th:each="info : ${enforcements}" class="info-card-item"
+	         th:classappend="${info.posterName == '兵庫県警公式'} ? 'border-police' : (${info.posterName == '管理者'} ? 'border-admin' : 'border-user')">
+	        
+	        <!-- 左側：テキストエリア -->
+	        <div class="content-group">
+	            <!-- 投稿者バッジ -->
+	            <span class="custom-badge"
+	                  th:classappend="${info.posterName == '兵庫県警公式'} ? 'bg-police-badge' : (${info.posterName == '管理者'} ? 'bg-admin-badge' : 'bg-user-badge')"
+	                  th:text="${info.posterName}">
+	                投稿者
+	            </span>
+	            
+	            <!-- 実施日時 -->
+	            <h5 class="text-date-title">
+	                <span th:if="${info.posterName == '兵庫県警公式' && #temporals.format(info.enforcementDate, 'HH:mm') == '00:00'}"
+	                      th:text="${#temporals.format(info.enforcementDate, 'yyyy/MM/dd')} + ' 終日重点'"></span>
+	                <span th:unless="${info.posterName == '兵庫県警公式' && #temporals.format(info.enforcementDate, 'HH:mm') == '00:00'}"
+	                      th:text="${#temporals.format(info.enforcementDate, 'yyyy/MM/dd HH:mm')}">日時</span>
+	            </h5>
+	            
+	            <!-- 実施場所 -->
+	            <p class="text-location-desc">
+	                <strong>📍 場所:</strong> <span th:text="${info.location}">場所</span>
+	            </p>
+	            
+	            <!-- 詳細テキストプレビュー -->
+	            <p class="text-muted small mb-0 mt-1" style="white-space: pre-wrap;"
+	               th:text="${info.description != null && info.description.contains('[元データ]:') ? info.description.substring(0, info.description.indexOf('[元データ]:')).trim() : info.description}">詳細内容</p>
+	        </div>
+
+	        <!-- 右側：詳細ボタン（立体デザインを綺麗に維持するために btn-3d-base クラスへ変更） -->
+	        <div class="text-end mt-2 mt-sm-0" style="min-width: 130px;">
+	            <a th:href="@{/user/detail/{id}(id=${info.id})}"
+	               class="btn-3d-base" style="padding: 8px 16px; font-size: 0.95rem; white-space: nowrap; background: linear-gradient(180deg, #E1F5FE 0%, #B3E5FC 50%, #81D4FA 100%) !important; border-left: 1px solid #B3E5FC !important; border-right: 1px solid #B3E5FC !important; border-bottom: 4px solid #0288D1 !important; color: #01579B !important; box-shadow: 0 4px 10px rgba(3, 169, 244, 0.15);">
+	                詳細を見る
+	            </a>
+	        </div>
+	    </div> <!-- info-card-item 閉じ -->
+	</div> <!-- main-card 閉じ -->
+
+	<!-- 全体の情報リストページ最下部：カレンダーへ戻るリンクエリア（立体デザインを綺麗に維持するために btn-3d-base クラスへ変更） -->
+	<div class="detail-footer" style="margin-top: 40px;">
+	    <a th:href="@{/user/calendar}" class="btn-back-custom" style="width: 100%;">
+	        📅 カレンダー画面へ
+	    </a>
+	</div>
+</div> <!-- outer-box 閉じ -->
+</div> <!-- wrapper 閉じ -->
+</body>
+</html>

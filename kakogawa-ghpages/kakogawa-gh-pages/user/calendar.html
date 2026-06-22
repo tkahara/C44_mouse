@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>日付から探す | 加古川市 道路取り締まりポータル</title>
+<link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+<div class="wrapper">
+  <div class="outer-box">
+    <div class="inner-card">
+      <div class="calendar-nav">
+        <a href="?month=prev" onclick="changeMonth(-1); return false;" class="btn-back" style="padding:8px 16px; font-size:0.95rem;">← 前の月</a>
+        <h2 class="calendar-title" id="cal-title">📅 2026年 6月</h2>
+        <a href="?month=next" onclick="changeMonth(1); return false;" class="btn-back" style="padding:8px 16px; font-size:0.95rem;">次の月 →</a>
+      </div>
+
+      <div class="calendar-wrap">
+        <table class="calendar-table">
+          <thead>
+            <tr>
+              <th>日</th><th>月</th><th>火</th><th>水</th><th>木</th><th>金</th><th>土</th>
+            </tr>
+          </thead>
+          <tbody id="cal-body"></tbody>
+        </table>
+      </div>
+
+      <div style="text-align:center; margin-top:24px; display:flex; justify-content:center; gap:12px; flex-wrap:wrap;">
+        <a href="../index.html" class="btn-back">トップへ戻る</a>
+        <a href="list.html" class="btn-green">すべての情報をリスト表示</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// デモデータ（取り締まりがある日付）
+const DEMO_DATES = {
+  "2026-06-20": true,
+  "2026-06-18": true,
+  "2026-06-15": true,
+  "2026-06-10": true,
+};
+
+let currentYear = 2026;
+let currentMonth = 6;
+
+function pad(n) { return n < 10 ? "0" + n : "" + n; }
+
+function renderCalendar(year, month) {
+  document.getElementById("cal-title").textContent = `📅 ${year}年 ${month}月`;
+
+  const firstDay = new Date(year, month - 1, 1).getDay(); // 0=日
+  const daysInMonth = new Date(year, month, 0).getDate();
+
+  let html = "<tr>";
+  // 先頭の空白
+  for (let i = 0; i < firstDay; i++) html += '<td class="empty"></td>';
+
+  let col = firstDay;
+  for (let day = 1; day <= daysInMonth; day++) {
+    const dateStr = `${year}-${pad(month)}-${pad(day)}`;
+    const hasData = !!DEMO_DATES[dateStr];
+    if (hasData) {
+      html += `<td class="has-info"><a href="list_date.html?date=${dateStr}">${day}</a></td>`;
+    } else {
+      html += `<td>${day}</td>`;
+    }
+    col++;
+    if (col % 7 === 0 && day !== daysInMonth) html += "</tr><tr>";
+  }
+  // 末尾の空白
+  const remaining = 7 - (col % 7);
+  if (remaining < 7) for (let i = 0; i < remaining; i++) html += '<td class="empty"></td>';
+  html += "</tr>";
+
+  document.getElementById("cal-body").innerHTML = html;
+}
+
+function changeMonth(delta) {
+  currentMonth += delta;
+  if (currentMonth < 1)  { currentMonth = 12; currentYear--; }
+  if (currentMonth > 12) { currentMonth = 1;  currentYear++; }
+  renderCalendar(currentYear, currentMonth);
+}
+
+renderCalendar(currentYear, currentMonth);
+</script>
+</body>
+</html>

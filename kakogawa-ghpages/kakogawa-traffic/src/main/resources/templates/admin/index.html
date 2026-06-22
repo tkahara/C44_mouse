@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html xmlns:th="http://thymeleaf.org" lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>加古川市 道路取り締まり管理ポータル(管理者用)</title>
+<style>
+/* 背景 */
+body {
+background-color: #FFFDF9 !important; /* オレンジに合うよう、わずかに温かみのある白に調整 */
+font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', sans-serif;
+height: 100vh;
+margin: 0;
+}
+/* 画面中央に配置するラッパー */
+.wrapper {
+min-height: 100vh;
+display: flex;
+align-items: center;
+justify-content: center;
+padding: 20px;
+box-sizing: border-box;
+}
+/* 外側の枠（★背景をオレンジのストライプに変更） */
+.outer-box {
+width: 100%;
+max-width: 680px;
+background-color: #ffffff;
+/* 斜めのオレンジストライプ模様 */
+background-image: linear-gradient(
+-45deg,
+rgba(255, 152, 0, 0.15) 25%,
+transparent 25%,
+transparent 50%,
+rgba(255, 152, 0, 0.15) 50%,
+rgba(255, 152, 0, 0.15) 75%,
+transparent 75%,
+transparent
+);
+background-size: 40px 40px;
+border: 3px solid #FFB74D; /* 枠線をオレンジ色に変更 */
+border-radius: 24px;
+padding: 40px;
+box-shadow: 0 12px 35px rgba(255, 152, 0, 0.1); /* 影の色をオレンジ系に調整 */
+box-sizing: border-box;
+}
+/* メインカード */
+.portal-card {
+background-color: #ffffff;
+border: 1px solid #FFE0B2; /* フチを薄いオレンジに変更 */
+border-radius: 16px;
+padding: 45px 30px;
+box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+box-sizing: border-box;
+display: flex;
+flex-direction: column;
+align-items: center;
+}
+/* 最上部ロゴ風タイトル（★文字色を深みのあるオレンジへ） */
+.logo-area {
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 8px;
+font-size: 1.4rem;
+font-weight: bold;
+color: #E65100;
+margin-bottom: 5px;
+}
+/* メインタイトル */
+.inner-title {
+font-size: 2.2rem !important;
+font-weight: bold;
+text-align: center;
+color: #333333;
+margin-bottom: 25px;
+margin-top: 0;
+letter-spacing: 0.05em;
+}
+/* 説明文の箱 */
+.description-box {
+max-width: 460px;
+font-size: 1.1rem;
+line-height: 1.7;
+color: #555555;
+text-align: center;
+margin-bottom: 40px;
+}
+/* ボタンを並べるコンテナ */
+.button-container {
+width: 100%;
+max-width: 460px;
+display: flex;
+flex-direction: column;
+gap: 24px; /* ボタン同士の間隔 */
+box-sizing: border-box;
+}
+/* ✨ 共通：立体ボタンのベーススタイル ✨ */
+.custom-portal-btn {
+width: 100% !important;
+display: block !important;
+box-sizing: border-box !important;
+text-decoration: none !important;
+border-left: none !important;
+border-right: none !important;
+border-radius: 16px !important;
+padding: 1.2rem 0 !important;
+font-size: 1.35rem !important;
+font-weight: bold;
+color: #ffffff !important;
+text-align: center;
+cursor: pointer;
+transition: all 0.1s ease !important;
+text-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
+}
+/* 🧡 1. 管理者用入力ボタン（オレンジゴールド） */
+.btn-post {
+background: linear-gradient(180deg, #FFA726 0%, #FB8C00 50%, #EF6C00 100%) !important;
+border-top: 1px solid #FFCC80 !important;
+border-bottom: 5px solid #B35400 !important;
+box-shadow: 0 8px 20px rgba(239, 108, 0, 0.3) !important;
+}
+.btn-post:hover {
+background: linear-gradient(180deg, #FFB74D 0%, #FFA000 50%, #E65100 100%) !important;
+box-shadow: 0 10px 25px rgba(239, 108, 0, 0.4) !important;
+}
+/* ❤️ 2. データ編集・削除ボタン（管理者専用レッド） */
+.btn-view {
+background: linear-gradient(180deg, #FF6B6B 0%, #EE5253 50%, #C23616 100%) !important;
+border-top: 1px solid #FFA5A5 !important;
+border-bottom: 5px solid #841B05 !important;
+box-shadow: 0 8px 20px rgba(238, 82, 83, 0.3) !important;
+}
+.btn-view:hover {
+background: linear-gradient(180deg, #FF8E8E 0%, #F06262 50%, #D9411E 100%) !important;
+box-shadow: 0 10px 25px rgba(238, 82, 83, 0.4) !important;
+}
+/* 共通：ボタンを押したときの沈み込み動作 */
+.custom-portal-btn:active {
+transform: translateY(3px); /* 3 ピクセル下に沈む */
+box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15) !important;
+}
+.btn-post:active { border-bottom: 2px solid #B35400 !important; }
+.btn-view:active { border-bottom: 2px solid #841B05 !important; }
+/* フッターのログアウト・戻るリンク */
+.admin-link-container {
+    width: 100%;
+    max-width: 460px; /* 上の立体ボタンと横幅を綺麗に合わせる */
+    text-align: center;
+    margin-top: 35px; /* 上の白いカードとの最適な隙間を確保 */
+    box-sizing: border-box;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.btn-return-public {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 1.1rem 0 !important; /* 上の立体ボタンの肉厚感に高さを統一 */
+    box-sizing: border-box !important;
+    text-decoration: none !important;
+    
+    /* 背景と枠線設定（画像通りの白背景＋オレンジ枠） */
+    background-color: #ffffff !important;
+    border: 2px solid #FFB74D !important; 
+    border-radius: 16px !important; /* 角丸の統一 */
+    
+    font-size: 1.25rem !important;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease !important;
+}
+
+/* 🎨 文字のオレンジグラデーション設定 */
+.btn-return-public .gradient-text {
+    background: linear-gradient(to right, #FF7043 0%, #FFA726 100%) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    background-clip: text !important;
+    text-fill-color: transparent !important;
+    display: inline-block;
+}
+
+/* ホバー（マウスを載せたとき）の効果 */
+.btn-return-public:hover {
+    background-color: #FFFDF9 !important;
+    border-color: #FFA000 !important;
+    box-shadow: 0 4px 12px rgba(255, 152, 0, 0.1);
+}
+
+/* クリックした瞬間の効果 */
+.btn-return-public:active {
+    transform: scale(0.99);
+    box-shadow: none;
+}
+
+/* 📱 スマホ対応ブレイクポイント（他の全画面の縮尺と完全にシンクロ） */
+@media (max-width: 576px) {
+    .wrapper {
+        padding: 40px 20px;
+    }
+    .outer-box {
+        padding: 40px; 
+        border-radius: 24px;
+    }
+    .portal-card {
+        padding: 35px 20px; 
+        border-radius: 16px;
+    }
+    .inner-title {
+        font-size: 1.5rem !important;
+        margin-bottom: 20px;
+    }
+    .description-box {
+        font-size: 0.95rem;
+        margin-bottom: 25px;
+    }
+    .button-container {
+        gap: 16px;
+    }
+    .custom-portal-btn {
+        font-size: 1.15rem !important;
+        padding: 1rem 0 !important;
+        border-radius: 14px !important;
+    }
+    /* スマホ環境での戻るボタンの調整 */
+    .admin-link-container {
+        margin-top: 25px;
+    }
+    .btn-return-public {
+        font-size: 1.1rem !important;
+        padding: 0.9rem 0 !important;
+        border-radius: 14px !important;
+    }
+}
+</style>
+</head>
+<body>
+<div class="wrapper">
+<div class="outer-box">
+<!-- メインのカードボード -->
+<div class="portal-card">
+<!-- ロゴエリア -->
+<div class="logo-area">
+⚙️ 管理者専用システム
+</div>
+<!-- メインタイトル -->
+<h1 class="inner-title">情報管理メニューポータル</h1>
+<!-- 案内文 -->
+<div class="description-box">
+データの新規登録、または既存の投稿データの確認・クレンジング（編集・削除）を行うことができます。
+</div>
+<!-- ぷっくりボタンの配置エリア -->
+<div class="button-container">
+<!-- 管理者用入力画面へのリンク -->
+<a th:href="@{/admin/input}" class="custom-portal-btn btn-post">
+✍️ 管理者として新しい情報を登録する
+</a>
+<!-- 🛠️ 投稿データの編集・削除を行う -->
+<a th:href="@{/admin/calendar}" class="custom-portal-btn btn-view">
+🛠️ 投稿データの編集・削除を行う
+</a>
+</div>
+</div>
+
+<!-- ✨ 矢印を消し、画像通りの洗練されたデザインに変更した戻るリンク ✨ -->
+<div class="admin-link-container">
+<a th:href="@{/}" class="btn-return-public">
+    <span class="gradient-text">一般公開サイトに戻る</span>
+</a>
+</div>
+
+</div>
+</div>
+</body>
+</html>

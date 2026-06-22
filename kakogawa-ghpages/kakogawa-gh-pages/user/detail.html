@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>取り締まり情報詳細 | 加古川市 道路取り締まりポータル</title>
+<link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+<div class="wrapper">
+  <div class="outer-box">
+    <div class="inner-card" id="detail-content">
+      <p style="text-align:center; color:#999; padding:40px 0;">読み込み中...</p>
+    </div>
+  </div>
+</div>
+
+<script>
+const DEMO_DATA = [
+  { id: 1, date: "2026-06-20 08:30", poster: "管理者",     location: "国道2号線 加古川駅前交差点付近",   desc: "速度取り締まり実施中。\n覆面パトカーが確認されています。\n国道2号線の東向き車線、加古川橋手前あたりに配備されています。", type: "admin" },
+  { id: 2, date: "2026-06-20 00:00", poster: "兵庫県警公式", location: "加古川バイパス 八幡インター付近",     desc: "速度違反取り締まり重点路線 (兵庫県警公式公開情報)\n加古川バイパス全線において速度超過取り締まりを強化実施します。", type: "police" },
+  { id: 3, date: "2026-06-18 15:00", poster: "名無し",      location: "県道43号線 加古川市野口町",          desc: "一時停止違反の取り締まりをやっていました。\n交差点手前で警察官が立っています。\n北側からの進入時にご注意ください。", type: "user" },
+  { id: 4, date: "2026-06-15 09:00", poster: "山田太郎",    location: "東加古川駅前 ロータリー付近",        desc: "駐車違反の取り締まりが行われていました。\n朝9時ごろ、駐車禁止エリアで複数台に対して切符を切っていました。", type: "user" },
+  { id: 5, date: "2026-06-10 00:00", poster: "兵庫県警公式", location: "加古川駅北側 国道2号線",             desc: "飲酒運転取り締まり重点路線 (兵庫県警公式公開情報)\n夜間を中心に飲酒検問を実施します。", type: "police" },
+];
+
+function formatDateFull(dateStr) {
+  const [datePart, timePart] = dateStr.split(" ");
+  const [y, m, d] = datePart.split("-");
+  if (timePart === "00:00") return `${y}年${m}月${d}日 (終日重点)`;
+  const [h, min] = timePart.split(":");
+  return `${y}年${m}月${d}日 ${h}時${min}分`;
+}
+
+function badgeClass(type) {
+  return { admin: "badge-admin", police: "badge-police", user: "badge-user" }[type] || "badge-user";
+}
+
+const params = new URLSearchParams(location.search);
+const id = parseInt(params.get("id"), 10);
+const info = DEMO_DATA.find(d => d.id === id);
+
+const container = document.getElementById("detail-content");
+
+if (!info) {
+  container.innerHTML = `
+    <h1 style="font-size:1.6rem; font-weight:bold; text-align:center; margin-bottom:24px; border-bottom:2px solid #81D4FA; padding-bottom:12px;">📋 道路取り締まり情報 詳細</h1>
+    <p style="text-align:center; color:#999; padding:20px 0;">指定されたデータが見つかりません。</p>
+    <div style="text-align:center; margin-top:20px;">
+      <a href="calendar.html" class="btn-green">📅 カレンダー画面へ戻る</a>
+    </div>
+  `;
+} else {
+  container.innerHTML = `
+    <h1 style="font-size:1.6rem; font-weight:bold; text-align:center; margin-bottom:24px; border-bottom:2px solid #81D4FA; padding-bottom:12px; width:100%;">📋 道路取り締まり情報 詳細</h1>
+    <div class="info-table">
+      <div class="info-row">
+        <div class="info-label">📅 日時</div>
+        <div class="info-value" style="color:#0288D1; font-weight:bold;">${formatDateFull(info.date)}</div>
+      </div>
+      <div class="info-row">
+        <div class="info-label">📍 場所</div>
+        <div class="info-value" style="font-weight:bold;">${info.location}</div>
+      </div>
+      <div class="info-row">
+        <div class="info-label">👤 投稿者</div>
+        <div class="info-value"><span class="badge ${badgeClass(info.type)}">${info.poster}</span></div>
+      </div>
+    </div>
+    <div class="details-box">
+      <h2>📝 詳細情報・文字情報</h2>
+      <p>${info.desc}</p>
+    </div>
+    <div style="text-align:center; margin-top:32px;">
+      <a href="calendar.html" class="btn-green">📅 カレンダー画面へ戻る</a>
+    </div>
+  `;
+}
+</script>
+</body>
+</html>

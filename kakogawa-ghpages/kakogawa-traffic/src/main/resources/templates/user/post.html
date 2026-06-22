@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html xmlns:th="http://thymeleaf.org" lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>取り締まり情報の投稿</title> 
+    <style>
+        /* 背景：画面全体を優しく包む最背面（他の画面と完全統一） */
+        body {
+            background-color: #F7FCFF !important; 
+            font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', sans-serif;
+            min-height: 100vh;
+            margin: 0;
+        }
+        
+        /* 画面中央に配置するラッパー（他の画面と完全統一） */
+        .wrapper {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column; 
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            box-sizing: border-box;
+            gap: 25px;
+        }
+        
+        /* 外側の枠（水色チェック） */
+        .outer-box {
+            width: 100%;
+            max-width: 680px; 
+            background-color: #ffffff;
+            background-image: 
+                linear-gradient(90deg, rgba(3, 169, 244, 0.15) 50%, transparent 50%),
+                linear-gradient(rgba(3, 169, 244, 0.15) 50%, transparent 50%);
+            background-size: 30px 30px; 
+            
+            border: 3px solid #81D4FA; 
+            border-radius: 24px; 
+            padding: 40px;
+            box-shadow: 0 12px 35px rgba(3, 169, 244, 0.1);
+            box-sizing: border-box;
+        }
+        
+        /* 内側の白いフォームカード */
+        .form-card {
+            background-color: #ffffff;
+            border: 1px solid #E1F5FE;
+            border-radius: 16px; 
+            padding: 45px 30px; 
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+        
+        /* メインタイトル */
+        .inner-title {
+            font-size: 2rem !important;
+            font-weight: bold;
+            text-align: center;
+            color: #333333;
+            margin-bottom: 15px;
+            margin-top: 0;
+            letter-spacing: 0.05em;
+            width: 100%;
+        }
+        
+        /* 説明文の箱 */
+        .description-box {
+            width: 100%;
+            max-width: 480px;
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #666666;
+            text-align: center;
+            margin-bottom: 35px;
+        }
+        
+        /* フォーム自体の配置設定 */
+        .submission-form {
+            width: 100%;
+            max-width: 480px;
+            display: flex;
+            flex-direction: column;
+            box-sizing: border-box;
+        }
+        
+        /* 各入力パーツを包む箱 */
+        .form-group {
+            width: 100%;
+            margin-bottom: 24px;
+            box-sizing: border-box;
+        }
+        
+        /* フォームのラベル */
+        .form-label-top {
+            display: block;
+            font-size: 1.15rem !important;
+            font-weight: bold;
+            color: #444444;
+            margin-bottom: 10px; 
+            text-align: left; 
+            padding-left: 4px; 
+        }
+        
+        /* 入力フォーム共通 */
+        .form-control-custom {
+            border: 2px solid #CBDCDA !important;
+            border-radius: 12px !important; 
+            padding: 1rem 1.2rem !important;
+            font-size: 1.15rem !important;
+            text-align: left; 
+            transition: all 0.2s ease;
+            width: 100% !important; 
+            display: block !important;
+            box-sizing: border-box;
+            background-color: #ffffff;
+            color: #333333;
+        }
+
+        .form-control-custom:focus {
+            border-color: #03A9F4 !important; 
+            box-shadow: 0 0 0 5px rgba(3, 169, 244, 0.15) !important;
+            outline: none;
+        }
+        
+        /* テキストエリア専用 */
+        textarea.form-control-custom {
+            resize: vertical;
+            min-height: 120px;
+            line-height: 1.5;
+        }
+        
+        /* ファイル選択パーツ専用 */
+        .file-input-custom {
+            padding: 0.8rem 1rem !important;
+            font-size: 1rem !important;
+            background-color: #F8FCFF;
+            cursor: pointer;
+        }
+        
+        /* ファイル補助説明テキスト */
+        .form-help-text {
+            font-size: 0.85rem;
+            color: #777777;
+            margin-top: 8px;
+            padding-left: 4px;
+            line-height: 1.4;
+        }
+        
+        /* ✨ 投稿ボタン ✨ */
+        .custom-submit-btn {
+            width: 100% !important; 
+            display: flex !important; 
+            align-items: center;
+            justify-content: center;
+            gap: 12px; 
+            box-sizing: border-box !important;
+            text-decoration: none !important;
+            border-left: none !important;
+            border-right: none !important;
+            background: linear-gradient(180deg, #4ad3ff 0%, #0099ff 50%, #0077dd 100%) !important; 
+            border-top: 1px solid #80e0ff !important;
+            border-bottom: 5px solid #0044aa !important; 
+            box-shadow: 0 8px 20px rgba(0, 153, 255, 0.3) !important;     
+            border-radius: 16px !important; 
+            padding: 1.2rem 0 !important;       
+            font-size: 1.35rem !important;
+            font-weight: bold;
+            color: #ffffff !important;
+            text-align: center; 
+            cursor: pointer;
+            transition: all 0.1s ease !important;
+            margin: 0 !important;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
+        }
+        
+        .custom-submit-btn:hover {
+            background: linear-gradient(180deg, #70dcff 0%, #22aaff 50%, #1188ff 100%) !important;
+            box-shadow: 0 10px 25px rgba(0, 153, 255, 0.4) !important;
+        }
+        
+        .custom-submit-btn:active {
+            border-bottom: 2px solid #0044aa !important;
+            transform: translateY(3px); 
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15) !important;
+        }
+        
+        /* 紙飛行機アイコン */
+        .paper-plane-icon {
+            width: 24px;
+            height: 24px;
+            fill: none;
+            stroke: #ffffff; 
+            stroke-width: 2.5; 
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            display: inline-block;
+            vertical-align: middle;
+            filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.2));
+        }
+
+        /* ----------------------------------
+         * ✨ 【解決策】レスポンシブの「外側」に記述：新しい「TOPに戻る」ボタンの基本スタイル ✨
+         * ---------------------------------- */
+        .back-link-container {
+            width: 100%;
+            max-width: 480px; 
+            text-align: center;
+            margin-top: 30px; 
+            box-sizing: border-box;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .btn-return-public {
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 1.1rem 0 !important; 
+            box-sizing: border-box !important;
+            text-decoration: none !important;
+            
+            /* 背景と枠線設定（画像通りの白背景＋水色枠） */
+            background-color: #ffffff !important;
+            border: 2px solid #81D4FA !important; 
+            border-radius: 16px !important; 
+            
+            font-size: 1.25rem !important;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease !important;
+        }
+
+        /* 🎨 文字のブルーグラデーション設定 */
+        .btn-return-public .gradient-text {
+            background: linear-gradient(to right, #29B6F6 0%, #0288D1 100%) !important;
+            -webkit-background-clip: text !important;
+            -webkit-text-fill-color: transparent !important;
+            background-clip: text !important;
+            text-fill-color: transparent !important;
+            display: inline-block;
+        }
+
+        .btn-return-public:hover {
+            background-color: #F7FCFF !important; 
+            border-color: #29B6F6 !important;
+            box-shadow: 0 4px 12px rgba(3, 169, 244, 0.15);
+        }
+        
+        .btn-return-public:active {
+            transform: scale(0.99);
+            box-shadow: none;
+        }
+		 @media (max-width: 576px) {
+		            .wrapper {
+		                padding: 40px 20px; 
+		            }
+		            .outer-box {
+		                padding: 40px; 
+		                border-radius: 24px;
+		            }
+		            .form-card {
+		                padding: 35px 20px; 
+		                border-radius: 16px;
+		            }
+		            .inner-title {
+		                font-size: 1.5rem !important;
+		                margin-bottom: 12px;
+		            }
+		            .description-box {
+		                font-size: 0.9rem;
+		                margin-bottom: 25px;
+		            }
+		            .form-label-top {
+		                font-size: 1rem !important;
+		                margin-bottom: 6px;
+		            }
+		            .form-control-custom {
+		                padding: 0.8rem 1rem !important;
+		                font-size: 1rem !important;
+		            }
+		            .form-group {
+		                margin-bottom: 18px;
+		            }
+		            .custom-submit-btn {
+		                font-size: 1.2rem !important;
+		                padding: 1rem 0 !important;
+		            }
+		            /* 📱 スマホ環境での戻るボタンの調整 */
+		            .back-link-container {
+		                margin-top: 20px;
+		            }
+		            .btn-return-public {
+		                font-size: 1.1rem !important;
+		                padding: 0.9rem 0 !important;
+		                border-radius: 14px !important;
+		            }
+		        }
+		    </style>
+		</head>
+		<body>
+		<div class="wrapper">
+		    <div class="outer-box">   
+		        <!-- 内側の白いフォームカード -->
+		        <div class="form-card">  
+		            <!-- メインタイトル -->
+		            <h1 class="inner-title">🚨 取り締まり情報の投稿</h1>
+		            <!-- 案内説明文 -->
+		            <div class="description-box">
+		                加古川市内での速度違反、一時停止違反などの目撃情報を共有してください。安全運転の向上につながります。
+		            </div>
+		            <!-- フォーム -->
+		            <form th:action="@{/user/post/submit}" th:object="${enforcement}" method="post" enctype="multipart/form-data" class="submission-form">  
+		                <!-- 投稿者名 -->
+		                <div class="form-group">
+		                    <label class="form-label-top">👤 投稿者名 (任意)</label>
+		                    <input type="text" class="form-control-custom" th:field="*{posterName}" placeholder="例: 加古川のドライバー">
+		                </div>
+		                <!-- 取り締まり日時 -->
+		                <div class="form-group">
+		                    <label class="form-label-top">📅 取り締まり日時 / 目撃日時</label>
+		                    <input type="datetime-local" class="form-control-custom" th:field="*{enforcementDate}" required>
+		                </div>
+		                <!-- 取り締まり場所 -->
+		                <div class="form-group">
+		                    <label class="form-label-top">📍 取り締まり場所</label>
+		                    <input type="text" class="form-control-custom" th:field="*{location}" placeholder="例: 国道2号線 加古川駅前交差点付近" required>
+		                </div>
+		                <!-- 詳細情報 -->
+		                <div class="form-group">
+		                    <label class="form-label-top">💬 取り締まり内容・詳細情報</label>
+		                    <textarea class="form-control-custom" th:field="*{description}" placeholder="詳細な状況を入力してください（例: ネズミ捕りをやっていました。警察官が植え込みの陰に隠れています。）"></textarea>
+		                </div>
+						<!-- ファイル添付 -->
+						<div class="form-group" style="margin-bottom: 24px;">
+						    <label class="form-label-top">📸 画像または動画の添付</label>
+						    <input type="file" class="form-control-custom file-input-custom" name="file" accept="image/*,video/*">
+						    <div class="form-text form-help-text">スマートフォンで撮影した写真やドラレコの動画ファイルを添付できます。</div>
+						</div>
+
+						<!-- 免責事項へのリンクと同意チェックボックス -->
+						<div class="form-group" style="margin-bottom: 35px; background-color: #F8FCFF; border: 1px solid #E1F5FE; padding: 15px; border-radius: 12px; box-sizing: border-box;">
+						    <div style="display: flex; align-items: flex-start; gap: 10px; width: 100%;">
+						        <input type="checkbox" id="termsAgreement" onchange="document.getElementById('submitBtn').disabled = !this.checked;" style="width: 20px; height: 20px; margin-top: 2px; cursor: pointer;">
+						        <label for="termsAgreement" style="font-size: 0.95rem; font-weight: bold; color: #444444; cursor: pointer; line-height: 1.4; text-align: left; width: 100%;">
+						            投稿内容に責任を持ち、<a th:href="@{/user/terms}" target="_blank" style="color: #0288D1; text-decoration: underline; font-weight: bold;">免責事項および情報協力規約</a> に同意します。
+						        </label>
+						    </div>
+						</div>
+
+						<!-- 投稿ボタン（初期状態で disabled にしてグレーアウトさせます） -->
+						<div style="width: 100%; display: flex; justify-content: center; margin-top: 10px;">
+						    <button type="submit" id="submitBtn" class="custom-submit-btn" style="max-width: 360px !important;" disabled>
+						        <svg class="paper-plane-icon" viewBox="0 0 24 24">
+						            <line x1="22" y1="2" x2="11" y2="13"></line>
+						            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+						        </svg>
+						        <span>投稿を完了する</span>
+						    </button>       
+						</div>
+
+						<!-- ボタンがロックされている時の補助用スタイル調整（既存の立体デザインを維持） -->
+						<style>
+						    .custom-submit-btn:disabled {
+						        background: #cccccc !important;
+						        border-top: 1px solid #e0e0e0 !important;
+						        border-bottom: 5px solid #888888 !important;
+						        box-shadow: none !important;
+						        cursor: not-allowed;
+						        opacity: 0.6;
+						        text-shadow: none;
+						    }
+						    .custom-submit-btn:disabled:hover { background: #cccccc !important; }
+						    .custom-submit-btn:disabled:active { transform: none !important; border-bottom: 5px solid #888888 !important; }
+						</style>
+
+						<!-- 🔄【確実なブラウザ対策】画面がリロードされた際、ブラウザのキャッシュでチェックが残る現象をJavaScriptで強制リセット -->
+						<script>
+						    document.addEventListener("DOMContentLoaded", function() {
+						        var checkbox = document.getElementById('termsAgreement');
+						        var submitBtn = document.getElementById('submitBtn');
+						        if (checkbox && submitBtn) {
+						            checkbox.checked = false; // 最初から必ずオフ
+						            submitBtn.disabled = true; // ボタンは必ずロック
+						        }
+						    });
+						</script>
+
+		            </form>
+		        </div>
+
+		        <!-- ✨ 水色チェックのカード枠の外に配置され、くっきりと浮かび上がった「一般公開サイト（TOP）に戻る」ボタン ✨ -->
+		        <div class="back-link-container">
+		            <a th:href="@{/}" class="btn-return-public">
+		                <span class="gradient-text">一般公開サイトに戻る</span>
+		            </a>
+		        </div>
+		        
+		    </div>
+		</div>
+		</body>
+		</html>

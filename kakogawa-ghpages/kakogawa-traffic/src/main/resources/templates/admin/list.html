@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html xmlns:th="http://thymeleaf.org" lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>【管理】投稿データの編集・削除</title> 
+    <style>
+        /* 背景 */
+        body {
+            background-color: #FFFDF9 !important; 
+            font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', sans-serif;
+            min-height: 100vh;
+            margin: 0;
+        }
+        /* 全体を包むラッパー */
+        .wrapper {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            box-sizing: border-box;
+        }
+        /* 外側の枠（管理者共通：オレンジの斜めストライプ - 680pxで完全同期） */
+        .outer-box {
+            width: 100%;
+            max-width: 680px;
+            background-color: #ffffff;
+            background-image: linear-gradient(
+                -45deg, 
+                rgba(255, 152, 0, 0.15) 25%, 
+                transparent 25%, 
+                transparent 50%, 
+                rgba(255, 152, 0, 0.15) 50%, 
+                rgba(255, 152, 0, 0.15) 75%, 
+                transparent 75%, 
+                transparent
+            );
+            background-size: 40px 40px; 
+            border: 3px solid #FFB74D; 
+            border-radius: 24px; 
+            padding: 40px;
+            box-shadow: 0 12px 35px rgba(255, 152, 0, 0.1);
+            box-sizing: border-box;
+        }
+        /* 内側の白いコンテンツカード */
+        .list-card {
+            background-color: #ffffff;
+            border: 1px solid #FFE0B2; 
+            border-radius: 16px; 
+            padding: 45px 35px; /* フォーム画面（45px 35px）と完全に統一 */
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+            box-sizing: border-box;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* 子要素を中央に整列させる */
+        }
+        /* ヘッダーエリア */
+        .list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #FFB74D;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+            width: 100%;
+            max-width: 480px; /* 入力画面のメイン幅と完全同期 */
+            gap: 15px;
+            box-sizing: border-box;
+        }
+        /* メインタイトル */
+        .inner-title {
+            font-size: 1.5rem !important; /* 少しシャープにして美しく収まるサイズに */
+            font-weight: bold;
+            color: #333333;
+            margin: 0;
+            letter-spacing: 0.05em;
+            line-height: 1.3;
+        }
+        /* メニューに戻るボタン */
+        .menu-back-btn {
+            background: #ffffff !important;
+            border: 2px solid #FFB74D !important;
+            color: #FB8C00 !important;
+            padding: 0.5rem 1rem;
+            font-size: 0.95rem;
+            font-weight: bold;
+            border-radius: 10px;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+        .menu-back-btn:hover {
+            background: #FFF5E6 !important;
+            color: #E65100 !important;
+            border-color: #FFA000 !important;
+        }
+        /* データが空のときのアラート */
+        .empty-alert {
+            background-color: #FFF5E6;
+            color: #E65100;
+            border: 1px dashed #FFB74D;
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 10px;
+            width: 100%;
+            max-width: 480px;
+            box-sizing: border-box;
+        }
+        /* 投稿データアイテムのカード（ぷっくり立体構造） */
+        .info-item-card {
+            background-color: #ffffff;
+            border: 1px solid #E0E0E0;
+            border-radius: 14px;
+            padding: 20px;
+            margin-bottom: 18px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.03);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            width: 100%;
+            max-width: 480px; /* ✨ ここが肝！入力欄と同じ幅に絞ることで左右に美しい余白を創出 */
+            box-sizing: border-box;
+            transition: transform 0.2s ease;
+        }
+        .info-item-card:hover {
+            transform: translateY(-2px);
+        }
+        /* 左側の境界線 */
+        .border-admin { border-left: 6px solid #FF9800 !important; }     
+        .border-user { border-left: 6px solid rgb(0, 128, 255) !important; }      
+        
+        /* 投稿者名バッジ */
+        .poster-badge {
+            display: inline-block;
+            font-size: 0.8rem;
+            font-weight: bold;
+            padding: 4px 10px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            color: #ffffff;
+        }
+        .badge-admin { background-color: #FF9800; }
+        .badge-user { background-color: rgb(0, 128, 255); }
+
+        /* テキストエリア */
+        .info-content-area {
+            flex: 1;
+            text-align: left;
+            min-width: 0;
+        }
+        .info-date {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #333333;
+            margin: 0 0 6px 0;
+            word-break: break-word;
+        }
+        .info-location {
+            font-size: 0.95rem;
+            color: #555555;
+            margin: 0;
+            word-break: break-word;
+        }
+        /* 右側の操作ボタンコンテナ */
+        .action-btn-container {
+            display: flex;
+            gap: 12px;
+            white-space: nowrap;
+        }
+        /* アクションボタン */
+        .item-action-btn {
+            padding: 0.6rem 1rem;
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: #ffffff !important;
+            border-radius: 10px;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.1s ease;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+            border-left: none !important;
+            border-right: none !important;
+            display: inline-block;
+            text-align: center;
+            box-sizing: border-box;
+        }
+        /* 修正ボタン（グリーン） */
+        .btn-item-edit {
+            background: linear-gradient(180deg, #66BB6A 0%, #43A047 50%, #2E7D32 100%) !important;
+            border-top: 1px solid #A5D6A7 !important;
+            border-bottom: 3px solid rgb(37, 143, 48) !important;
+        }
+        .btn-item-edit:hover { background: linear-gradient(180deg, #81C784 0%, #4CAF50 50%, #388E3C 100%) !important; }
+        
+        /* 削除ボタン（レッド） */
+        .btn-item-delete {
+            background: linear-gradient(180deg, #EF5350 0%, #E53935 50%, #C62828 100%) !important;
+            border-top: 1px solid #EF9A9A !important;
+            border-bottom: 3px solid #78281F !important;
+        }
+        .btn-item-delete:hover { background: linear-gradient(180deg, #E57373 0%, #F44336 50%, #D32F2F 100%) !important; }
+        
+        /* ボタンアクティブ動作 */
+        .item-action-btn:active {
+            transform: translateY(2px);
+        }
+        .btn-item-edit:active { border-bottom: 1px solid #1B5E20 !important; }
+        .btn-item-delete:active { border-bottom: 1px solid #78281F !important; }
+
+        /* 📱 スマホ・レスポンシブ対応（全画面で完璧に連動） */
+        @media (max-width: 576px) {
+            .wrapper {
+                padding: 40px 20px;
+            }
+            .outer-box {
+                padding: 40px; 
+                border-radius: 24px;
+            }
+            .list-card {
+                padding: 35px 20px;
+                border-radius: 16px;
+            }
+            .list-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+                margin-bottom: 20px;
+                max-width: 100%;
+            }
+            .inner-title {
+                font-size: 1.3rem !important;
+            }
+            .menu-back-btn {
+                width: 100%;
+                text-align: center;
+                box-sizing: border-box;
+                padding: 0.6rem 0;
+                font-size: 0.9rem;
+            }
+            .info-item-card {
+                flex-direction: column;
+                align-items: stretch; 
+                gap: 15px;
+                padding: 15px;
+                margin-bottom: 15px;
+                max-width: 100%; /* スマホでは画面いっぱいに広げて操作性を上げる */
+            }
+            .info-date {
+                font-size: 1.1rem;
+            }
+            .info-location {
+                font-size: 0.9rem;
+            }
+            .action-btn-container {
+                width: 100%;
+                display: flex;
+                gap: 10px;
+            }
+            .item-action-btn {
+                flex: 1; 
+                padding: 0.75rem 0; 
+                font-size: 0.9rem;
+            }
+            .empty-alert {
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="wrapper">
+    <div class="outer-box">   
+        <div class="list-card">  
+            
+            <div class="list-header">
+                <h1 class="inner-title">📋 登録データ編集・削除</h1>
+                <a th:href="@{/admin}" class="menu-back-btn">メニューに戻る</a>
+            </div>
+
+            <div th:if="${#lists.isEmpty(enforcements)}" class="empty-alert">
+                登録されているデータはありません。
+            </div>
+
+            <div th:each="info : ${enforcements}" class="info-item-card" 
+                 th:classappend="${info.posterName == '管理者'} ? 'border-admin' : 'border-user'">
+                
+                <div class="info-content-area">
+                    <span class="poster-badge" 
+                          th:classappend="${info.posterName == '管理者'} ? 'badge-admin' : 'badge-user'" 
+                          th:text="${info.posterName}">投稿者名</span>
+                    
+                    <h2 class="info-date" th:text="${#temporals.format(info.enforcementDate, 'yyyy/MM/dd HH:mm')}">日時</h2>
+                    <p class="info-location"><strong>📍 場所:</strong> <span th:text="${info.location}">場所</span></p>
+                </div>
+                
+                <div class="action-btn-container">
+                    <a th:href="@{/admin/edit/{id}(id=${info.id})}" class="item-action-btn btn-item-edit">✏️ 修正する</a>
+                    <a th:href="@{/admin/delete/{id}(id=${info.id})}" class="item-action-btn btn-item-delete" 
+                       onclick="return confirm('このデータを完全に消去してもよろしいですか？');">🗑️ 削除</a>
+                </div>
+                
+            </div>
+            
+        </div>
+    </div>
+</div>
+</body>
+</html>

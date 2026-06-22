@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html xmlns:th="http://thymeleaf.org" lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>取り締まり情報詳細</title>
+<style>
+/* 背景：画面全体を優しく包む最背面（他の画面と完全統一） */
+body {
+background-color: #F7FCFF !important;
+font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', sans-serif;
+min-height: 100vh;
+margin: 0;
+}
+/* 画面中央に配置するラッパー（他の画面と完全統一） */
+.wrapper {
+min-height: 100vh;
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+padding: 40px 20px;
+box-sizing: border-box;
+gap: 25px;
+}
+/* 外側の枠（水色チェック - 他の画面とサイズ・余白を完全統一） */
+.outer-box {
+width: 100%;
+max-width: 680px;
+background-color: #ffffff;
+background-image:
+linear-gradient(90deg, rgba(3, 169, 244, 0.15) 50%, transparent 50%),
+linear-gradient(rgba(3, 169, 244, 0.15) 50%, transparent 50%);
+background-size: 30px 30px;
+border: 3px solid #81D4FA;
+border-radius: 24px;
+padding: 40px;
+box-shadow: 0 12px 35px rgba(3, 169, 244, 0.1);
+box-sizing: border-box;
+}
+/* 内側の白い詳細カード（パディング感を統一） */
+.detail-card {
+background-color: #ffffff;
+border: 1px solid #E1F5FE;
+border-radius: 16px;
+padding: 45px 30px;
+box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+box-sizing: border-box;
+width: 100%;
+}
+/* メインタイトル */
+.inner-title {
+font-size: 1.8rem !important;
+font-weight: bold;
+text-align: center;
+color: #333333;
+margin-bottom: 30px;
+margin-top: 0;
+letter-spacing: 0.05em;
+border-bottom: 2px solid #81D4FA;
+padding-bottom: 12px;
+width: 100%;
+}
+/* 情報を並べるリスト構造スタイル */
+.info-table-custom {
+width: 100%;
+display: flex;
+flex-direction: column;
+gap: 12px;
+margin-bottom: 20px;
+}
+.info-row {
+display: flex;
+align-items: stretch; /* ラベルと値の高さを揃える */
+border: 1px solid #E1F5FE;
+border-radius: 12px;
+background-color: #ffffff;
+overflow: hidden;
+box-shadow: 0 2px 8px rgba(3, 169, 244, 0.02);
+}
+.info-label {
+width: 110px;
+min-width: 110px;
+background-color: #F0F9FF;
+color: #0288D1;
+font-weight: bold;
+padding: 1rem;
+text-align: center;
+font-size: 1rem;
+border-right: 1px solid #E1F5FE;
+display: flex;
+align-items: center;
+justify-content: center;
+}
+.info-value {
+padding: 1rem 1.4rem;
+font-size: 1.15rem;
+color: #333333;
+flex: 1;
+text-align: left;
+word-break: break-all; /* 長い英数字等のはみ出し対策 */
+}
+.text-highlight-blue {
+color: #0288D1;
+font-weight: bold;
+}
+.text-highlight-dark {
+color: #222222;
+font-weight: bold;
+}
+/* 投稿者バッジ */
+.badge-admin-dark {
+background-color: #37474F;
+color: #ffffff;
+font-weight: bold;
+padding: 4px 10px;
+border-radius: 6px;
+font-size: 0.9rem;
+display: inline-block;
+}
+/* 兵庫県警公式用専用バッジ */
+.badge-police-blue {
+background-color: #0288D1;
+color: #ffffff;
+font-weight: bold;
+padding: 4px 10px;
+border-radius: 6px;
+font-size: 0.9rem;
+display: inline-block;
+}
+.text-user-muted {
+color: #666666;
+font-size: 1.05rem;
+}
+/* 文字詳細情報のボックス */
+.details-textbox {
+background-color: #F8FCFF;
+border: 1px solid #E1F5FE;
+border-radius: 12px;
+padding: 20px;
+margin-top: 24px;
+box-sizing: border-box;
+}
+.details-text-title {
+font-size: 1rem;
+font-weight: bold;
+color: #0288D1;
+border-bottom: 1px solid #B3E5FC;
+padding-bottom: 8px;
+margin-top: 0;
+margin-bottom: 12px;
+}
+.details-text-content {
+font-size: 1.1rem;
+line-height: 1.6;
+color: #444444;
+margin: 0;
+}
+/* 添付メディア表示エリア */
+.media-display-box {
+background-color: #1A252C;
+border-radius: 14px;
+padding: 12px;
+margin-top: 24px;
+text-align: center;
+box-sizing: border-box;
+box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+}
+.media-responsive {
+max-width: 100%;
+max-height: 400px;
+border-radius: 8px;
+display: block;
+margin: 0 auto;
+object-fit: contain;
+}
+/* フッターエリア */
+.detail-footer {
+display: flex;
+justify-content: space-between;
+align-items: center;
+margin-top: 35px;
+width: 100%;
+box-sizing: border-box;
+padding: 0 4px;
+}
+/* リストに戻るリンク（一般用：水色ぷっくりボタン風） */
+.btn-back-custom {
+display: inline-block;
+background: linear-gradient(180deg, #ffffff 0%, #F0F9FF 100%) !important;
+border: 2px solid #03A9F4 !important;
+color: #0288D1 !important;
+padding: 0.6rem 1.4rem;
+font-size: 1.05rem;
+font-weight: bold;
+border-radius: 12px;
+text-decoration: none;
+transition: all 0.1s ease;
+box-shadow: 0 3px 10px rgba(3, 169, 244, 0.1);
+text-align: center;
+}
+.btn-back-custom:hover {
+background: #E1F5FE !important;
+color: #01579B !important;
+border-color: #0288D1 !important;
+}
+.btn-back-custom:active {
+transform: translateY(2px);
+box-shadow: 0 1px 4px rgba(3, 169, 244, 0.05);
+}
+.timestamp-text {
+color: #777777;
+font-size: 0.9rem;
+text-align: right;
+}
+/* 📱 レスポンシブ対応 */
+@media (max-width: 576px) {
+.wrapper {
+padding: 40px 20px;
+}
+.outer-box {
+padding: 40px;
+border-radius: 24px;
+}
+.detail-card {
+padding: 35px 20px;
+border-radius: 16px;
+}
+.inner-title {
+font-size: 1.4rem !important;
+margin-bottom: 20px;
+}
+.info-row {
+flex-direction: column;
+align-items: stretch;
+}
+.info-label {
+width: 100%;
+min-width: 100%;
+border-right: none;
+border-bottom: 1px solid #E1F5FE;
+padding: 8px;
+box-sizing: border-box;
+font-size: 0.9rem;
+}
+.info-value {
+padding: 12px;
+font-size: 1rem;
+}
+.details-textbox, .media-display-box {
+margin-top: 16px;
+padding: 14px;
+}
+.detail-footer {
+flex-direction: column;
+gap: 16px;
+align-items: stretch;
+margin-top: 25px;
+}
+.btn-back-custom {
+width: 100%;
+padding: 12px 0;
+box-sizing: border-box;
+}
+.timestamp-text {
+text-align: center;
+font-size: 0.85rem;
+}
+}
+</style>
+</head>
+<body>
+<div class="wrapper">
+<div class="outer-box">
+<div class="detail-card">
+<h1 class="inner-title">📋 道路取り締まり情報 詳細</h1>
+<div class="info-table-custom">
+<div class="info-row">
+<div class="info-label">📅 日時</div>
+<div class="info-value text-highlight-blue">
+    <!-- 🛠️ 変更点1: 公式データ、かつ時刻が「00:00」の初期状態のときだけ「終日重点」にする -->
+    <span th:if="${info.posterName == '兵庫県警公式' && #temporals.format(info.enforcementDate, 'HH:mm') == '00:00'}" 
+          th:text="${#temporals.format(info.enforcementDate, 'yyyy 年 MM 月 dd 日')} + ' (終日重点)'"></span>
+    
+    <!-- 公式データでも時刻が書き換えられた場合、および通常の投稿は修正時刻を時分までそのまま連動表示 -->
+    <span th:unless="${info.posterName == '兵庫県警公式' && #temporals.format(info.enforcementDate, 'HH:mm') == '00:00'}" 
+          th:text="${#temporals.format(info.enforcementDate, 'yyyy 年 MM 月 dd 日 HH 時 mm 分')}"></span>
+</div>
+</div>
+<div class="info-row">
+<div class="info-label">📍 場所</div>
+<div class="info-value text-highlight-dark"
+th:text="${info.location}"></div>
+</div>
+<div class="info-row">
+<div class="info-label">👤 投稿者</div>
+<div class="info-value">
+<span th:if="${info.posterName == '管理者'}"
+class="badge-admin-dark" th:text="${info.posterName}"></span>
+<!-- 🛠️ 変更点2: 兵庫県警公式用の見やすい青バッジ表示領域 -->
+<span th:if="${info.posterName == '兵庫県警公式'}"
+class="badge-police-blue" th:text="${info.posterName}"></span>
+<span th:if="${info.posterName != '管理者' && info.posterName != '兵庫県警公式'}"
+class="text-user-muted" th:text="${info.posterName}"></span>
+</div>
+</div>
+</div>
+<div class="details-textbox">
+<h2 class="details-text-title">📝 詳細情報・文字情報</h2>
+<!-- 🛠️ 変更点3: 詳細情報から「[元データ]:」以降を完全に自動カットして美化 -->
+<p class="details-text-content" style="white-space: pre-wrap;" 
+   th:text="${info.description != null && info.description.contains('[元データ]:') ? info.description.substring(0, info.description.indexOf('[元データ]:')).trim() : info.description}"></p>
+</div>
+<!-- 添付メディア表示エリア（配信 URL マッピングおよび拡張子の大文字小文字完全自動判別） -->
+<div th:if="${info.mediaPath != null && !info.mediaPath.isEmpty()}" 
+class="media-display-box">
+<!-- 画像の判定 -->
+<img th:if="${info.mediaPath.toLowerCase().endsWith('.jpg') ||
+info.mediaPath.toLowerCase().endsWith('.png') ||
+info.mediaPath.toLowerCase().endsWith('.jpeg') ||
+info.mediaPath.toLowerCase().endsWith('.gif')}"
+th:src="${info.mediaPath.startsWith('/') || 
+info.mediaPath.startsWith('http') ? info.mediaPath : '/upload/' + 
+info.mediaPath}"
+class="media-responsive">
+<!-- 動画の判定 -->
+<video th:if="${info.mediaPath.toLowerCase().endsWith('.mp4') ||
+info.mediaPath.toLowerCase().endsWith('.mov') ||
+info.mediaPath.toLowerCase().endsWith('.webm')}"
+th:src="${info.mediaPath.startsWith('/') || 
+info.mediaPath.startsWith('http') ? info.mediaPath : '/upload/' + 
+info.mediaPath}"
+controls class="media-responsive" style="width: 100%;"></video>
+</div>
+<div class="detail-footer">
+<a th:href="@{/user/list}" class="btn-back-custom">リストに戻る</a>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>

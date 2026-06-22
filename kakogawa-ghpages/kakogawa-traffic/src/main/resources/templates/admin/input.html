@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html xmlns:th="http://thymeleaf.org" lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>【管理】新規公式情報の登録</title> 
+    <style>
+        /* 背景 */
+        body {
+            background-color: #FFFDF9 !important; 
+            font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', sans-serif;
+            min-height: 100vh;
+            margin: 0;
+        }
+        /* 画面中央に配置するラッパー */
+        .wrapper {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            box-sizing: border-box;
+        }
+        /* 外側の枠（管理者共通：オレンジの斜めストライプ） */
+        .outer-box {
+            width: 100%;
+            max-width: 680px; 
+            background-color: #ffffff;
+            background-image: linear-gradient(
+                -45deg, 
+                rgba(255, 152, 0, 0.15) 25%, 
+                transparent 25%, 
+                transparent 50%, 
+                rgba(255, 152, 0, 0.15) 50%, 
+                rgba(255, 152, 0, 0.15) 75%, 
+                transparent 75%, 
+                transparent
+            );
+            background-size: 40px 40px; 
+            border: 3px solid #FFB74D; 
+            border-radius: 24px; 
+            padding: 40px;
+            box-shadow: 0 12px 35px rgba(255, 152, 0, 0.1);
+            box-sizing: border-box;
+        }
+        /* 内側の白いフォームカード */
+        .form-card {
+            background-color: #ffffff;
+            border: 1px solid #FFE0B2; 
+            border-radius: 16px; 
+            padding: 45px 35px; 
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+        /* メインタイトル */
+        .inner-title {
+            font-size: 2rem !important;
+            font-weight: bold;
+            text-align: center;
+            color: #333333;
+            margin-bottom: 25px;
+            margin-top: 0;
+            letter-spacing: 0.05em;
+            width: 100%;
+        }
+        /* フォーム自体の配置設定 */
+        .submission-form {
+            width: 100%;
+            max-width: 480px;
+            display: flex;
+            flex-direction: column;
+            box-sizing: border-box;
+        }
+        /* 各入力パーツを包む箱 */
+        .form-group {
+            width: 100%;
+            margin-bottom: 24px;
+            box-sizing: border-box;
+        }
+        /* フォームのラベル */
+        .form-label-top {
+            display: block;
+            font-size: 1.15rem !important;
+            font-weight: bold;
+            color: #444444;
+            margin-bottom: 10px; 
+            text-align: left; 
+            padding-left: 4px; 
+        }
+        /* 入力フォーム共通 */
+        .form-control-custom {
+            border: 2px solid #CBDCDA !important;
+            border-radius: 12px !important; 
+            padding: 1rem 1.2rem !important;
+            font-size: 1.15rem !important;
+            text-align: left; 
+            transition: all 0.2s ease;
+            width: 100% !important; 
+            display: block !important;
+            box-sizing: border-box;
+            background-color: #ffffff;
+            color: #333333;
+        }
+        /* フォーカス時の色（オレンジ） */
+        .form-control-custom:focus {
+            border-color: #FF9800 !important; 
+            box-shadow: 0 0 0 5px rgba(255, 152, 0, 0.2) !important;
+            outline: none;
+        }
+        /* テキストエリア専用 */
+        textarea.form-control-custom {
+            resize: vertical;
+            min-height: 140px;
+            line-height: 1.5;
+        }
+        /* ファイル選択パーツ専用 */
+        .file-input-custom {
+            padding: 0.8rem 1rem !important;
+            font-size: 1rem !important;
+            background-color: #FFFDF9;
+            cursor: pointer;
+        }
+        /* ✨ 登録ボタン（管理者用立体オレンジ） ✨ */
+        .custom-submit-btn {
+            width: 100% !important; 
+            display: flex !important; 
+            align-items: center;
+            justify-content: center;
+            gap: 12px; 
+            box-sizing: border-box !important;
+            text-decoration: none !important;
+            border-left: none !important;
+            border-right: none !important;
+            background: linear-gradient(180deg, #FFA726 0%, #FB8C00 40%, #EF6C00 100%) !important; 
+            border-top: 1px solid #FFCC80 !important;
+            border-bottom: 5px solid #B35400 !important; 
+            box-shadow: 0 8px 20px rgba(239, 108, 0, 0.3) !important;     
+            border-radius: 16px !important; 
+            padding: 1.2rem 0 !important;       
+            font-size: 1.35rem !important;
+            font-weight: bold;
+            color: #ffffff !important;
+            text-align: center; 
+            cursor: pointer;
+            transition: all 0.1s ease !important;
+            margin: 0 !important;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
+        }
+        .custom-submit-btn:hover {
+            background: linear-gradient(180deg, #FFB74D 0%, #FFA000 40%, #E65100 100%) !important;
+            box-shadow: 0 10px 25px rgba(239, 108, 0, 0.4) !important;
+        }
+        .custom-submit-btn:active {
+            border-bottom: 2px solid #B35400 !important;
+            transform: translateY(3px); 
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15) !important;
+        }
+        /* アイコンのスタイル */
+        .submit-icon {
+            width: 24px;
+            height: 24px;
+            fill: none;
+            stroke: #ffffff; 
+            stroke-width: 2.5; 
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            display: inline-block;
+            vertical-align: middle;
+            filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.2));
+        }
+
+        /* ----------------------------------
+         * ✨ 画像のデザインを再現した「管理カレンダーに戻る」ボタン ✨
+         * ---------------------------------- */
+        .back-link-container {
+            width: 100%;
+            max-width: 480px; /* 💡 360pxから480pxへ修正。上のフォーム・ボタンと横幅を完全一致させます */
+            text-align: center;
+            margin-top: 25px;  /* 上の立体ボタンとの綺麗な余白感に微調整 */
+            box-sizing: border-box;
+            margin-left: auto;  /* 💡 左右の自動マージンで中央寄せを確実に固定 */
+            margin-right: auto; /* 💡 左右の自動マージンで中央寄せを確実に固定 */
+        }
+
+        .btn-return-calendar {
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            /* 💡 高さを立体ボタンの厚み(padding 1.2rem + ボーダー分)にしっかりと合わせるため、数ピクセル微調整しています */
+            padding: calc(1.2rem + 1px) 0 !important; 
+            box-sizing: border-box !important;
+            text-decoration: none !important;
+            
+            /* 背景と枠線設定（白背景＋オレンジ枠） */
+            background-color: #ffffff !important;
+            border: 2px solid #FFB74D !important; 
+            border-radius: 16px !important; 
+            
+            font-size: 1.35rem !important; /* 💡 1.2remから1.35remに引き上げ、文字サイズを同一に */
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease !important;
+        }
+
+        /* 📅 カレンダーアイコンのスタイル調整 */
+        .btn-return-calendar .calendar-icon {
+            font-size: 1.35rem;
+            margin-right: 10px; /* 文字との絶妙な間隔 */
+            display: inline-flex;
+            align-items: center;
+        }
+        /* 🎨 文字のオレンジグラデーション設定 */
+        .btn-return-calendar .gradient-text {
+            background: linear-gradient(to right, #FF7043 0%, #FFA726 100%) !important;
+            -webkit-background-clip: text !important;
+            -webkit-text-fill-color: transparent !important;
+            background-clip: text !important;
+            text-fill-color: transparent !important;
+            display: inline-block;
+        }
+        /* ホバー時の効果 */
+        .btn-return-calendar:hover {
+            background-color: #FFFDF9 !important;
+            border-color: #FFA000 !important;
+            box-shadow: 0 4px 12px rgba(255, 152, 0, 0.1);
+        }
+        .btn-return-calendar:active {
+            transform: scale(0.99);
+            box-shadow: none;
+        }
+
+        /* 📱 レスポンシブ対応 */
+        @media (max-width: 576px) {
+            .wrapper { padding: 40px 20px; }
+            .outer-box { padding: 40px; border-radius: 24px; }
+            .form-card { padding: 35px 20px; border-radius: 16px; }
+            .inner-title { font-size: 1.5rem !important; margin-bottom: 12px; }
+            .form-label-top { font-size: 1rem !important; margin-bottom: 6px; }
+            .form-control-custom { padding: 0.8rem 1rem !important; font-size: 1rem !important; }
+            .form-group { margin-bottom: 18px; }
+            .custom-submit-btn { font-size: 1.2rem !important; padding: 1rem 0 !important; }
+            /* スマホ環境での戻るボタンの調整 */
+            .back-link-container { margin-top: 20px; }
+            .btn-return-calendar {
+                font-size: 1.2rem !important; /* スマホでも登録ボタンの1.2remと同期 */
+                padding: 1rem 0 !important;
+                border-radius: 14px !important;
+            }
+            .btn-return-calendar .calendar-icon {
+                font-size: 1.2rem;
+                margin-right: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="wrapper">
+    <div class="outer-box">   
+        <div class="form-card">  
+            <h1 class="inner-title">➕ 公式情報の新規登録</h1>
+            
+            <!-- 🔄【500/404エラー完全解決】送信先アクションをコントローラーの受け口である「/admin/input/submit」絶対パスへ指定 -->
+            <form th:action="@{/admin/input/submit}" th:object="${enforcement}" method="post" enctype="multipart/form-data" class="submission-form">  
+                
+                <!-- 1. 取り締まり実施日の入力（コントローラーのdateInputと確実に適合） -->
+                <div class="form-group">
+                    <label for="dateInput" class="form-label-top">🚨 取り締まり実施日</label>
+		                    <input type="date" id="dateInput" name="dateInput" class="form-control-custom" required />
+		                </div>
+
+		                <!-- 2. 実施時間の入力（コントローラーのtimeInputと確実に適合） -->
+		                <div class="form-group">
+		                    <label for="timeInput" class="form-label-top">⏰ 実施時間</label>
+		                    <input type="time" id="timeInput" name="timeInput" class="form-control-custom" required />
+		                </div>
+
+		                <!-- 3. 取締場所の入力 -->
+		                <div class="form-group">
+		                    <label for="location" class="form-label-top">📍 取締場所・路線名</label>
+		                    <input type="text" id="location" th:field="*{location}" class="form-control-custom" placeholder="例：国道2号線 加古川駅前交差点付近" required />
+		                </div>
+
+		                <!-- 4. 詳細内容の入力 -->
+		                <div class="form-group">
+		                    <label for="description" class="form-label-top">📝 詳細状況・お知らせメモ</label>
+		                    <textarea id="description" th:field="*{description}" class="form-control-custom" placeholder="取り締まりの種別（オービス、ネズミ捕り、飲酒検問など）や具体的な運用情報を記載してください"></textarea>
+		                </div>
+
+		                <!-- 5. 証拠メディア添付 -->
+		                <div class="form-group">
+		                    <label for="mediaFile" class="form-label-top">📸 現場写真・資料動画の追加（任意）</label>
+		                    <input type="file" id="mediaFile" name="mediaFile" class="form-control-custom file-input-custom" accept="image/*,video/*" />
+		                </div>
+
+		                <!-- 6. ✨ 立体オレンジ登録ボタン ✨ -->
+						  <button type="submit" class="custom-submit-btn">
+						                    <svg class="submit-icon" viewBox="0 0 24 24">
+						                        <line x1="12" y1="5" x2="12" y2="19"></line>
+						                        <line x1="5" y1="12" x2="19" y2="12"></line>
+						                    </svg>
+						                    管理者権限で登録する
+						                </button>
+						                
+						            </form>
+
+						            <!-- 💡 【ここが重要！】back-link-containerを、formのすぐ後ろ（白いカードの内側）に移動します -->
+						            <div class="back-link-container">
+						                <a th:href="@{/admin/calendar}" class="btn-return-calendar">
+						                    <span class="calendar-icon">📅</span>
+						                    <span class="gradient-text">管理カレンダーに戻る</span>
+						                </a>
+						            </div>
+
+						        </div> <!-- 👈 内側の白いフォームカード（form-card）の閉じタグ。ここより手前にボタンを入れます -->
+						    </div> <!-- outer-box の閉じタグ -->
+						</div> <!-- wrapper の閉じタグ -->
+						</body>
+						</html>

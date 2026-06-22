@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>最新情報一覧 | 加古川市 道路取り締まりポータル</title>
+<link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+<div class="wrapper">
+  <div class="outer-box">
+    <div class="inner-card">
+
+      <div class="header-bar">
+        <h1 class="page-title">📌 最新情報一覧</h1>
+        <a href="../index.html" class="btn-back">TOP に戻る</a>
+      </div>
+
+      <div class="sort-container">
+        <a href="#" onclick="sortCards('desc'); return false;" class="btn-sort active" id="sort-desc">⏳ 新しい順</a>
+        <a href="#" onclick="sortCards('asc'); return false;" class="btn-sort" id="sort-asc">⏳ 古い順</a>
+      </div>
+
+      <div id="card-list"></div>
+
+    </div>
+  </div>
+  <div style="display:flex; justify-content:center; width:100%; max-width:680px;">
+    <a href="calendar.html" class="btn-green">📅 カレンダー画面へ</a>
+  </div>
+</div>
+
+<script>
+const DEMO_DATA = [
+  { id: 1, date: "2026-06-20 08:30", poster: "管理者",     location: "国道2号線 加古川駅前交差点付近",   desc: "速度取り締まり実施中。覆面パトカーが確認されています。", type: "admin" },
+  { id: 2, date: "2026-06-20 00:00", poster: "兵庫県警公式", location: "加古川バイパス 八幡インター付近",     desc: "速度違反取り締まり重点路線 (兵庫県警公式公開情報)", type: "police" },
+  { id: 3, date: "2026-06-18 15:00", poster: "名無し",      location: "県道43号線 加古川市野口町",          desc: "一時停止違反の取り締まりをやっていました。交差点手前で警察官が立っています。", type: "user" },
+  { id: 4, date: "2026-06-15 09:00", poster: "山田太郎",    location: "東加古川駅前 ロータリー付近",        desc: "駐車違反の取り締まりが行われていました。", type: "user" },
+  { id: 5, date: "2026-06-10 00:00", poster: "兵庫県警公式", location: "加古川駅北側 国道2号線",             desc: "飲酒運転取り締まり重点路線 (兵庫県警公式公開情報)", type: "police" },
+];
+
+let currentSort = "desc";
+
+function formatDate(dateStr) {
+  const [date, time] = dateStr.split(" ");
+  if (time === "00:00") return date.replace(/-/g, "/") + " 終日重点";
+  return dateStr.replace(/-/g, "/");
+}
+
+function renderCards(data) {
+  const container = document.getElementById("card-list");
+  if (data.length === 0) {
+    container.innerHTML = '<div style="text-align:center;padding:30px;color:#999;border:1px solid #eee;border-radius:12px;">現在、投稿されている取り締まり情報はありません。</div>';
+    return;
+  }
+  container.innerHTML = data.map(d => `
+    <div class="info-card border-${d.type}">
+      <div class="content-group">
+        <span class="badge badge-${d.type}">${d.poster}</span>
+        <div class="date-title">${formatDate(d.date)}</div>
+        <p class="location-text"><strong>📍 場所:</strong> ${d.location}</p>
+        <p class="desc-text">${d.desc}</p>
+      </div>
+      <div style="min-width:120px; text-align:right; margin-top:8px;">
+        <a href="detail.html?id=${d.id}" class="btn-back" style="padding:8px 14px; font-size:0.9rem; white-space:nowrap;">詳細を見る</a>
+      </div>
+    </div>
+  `).join("");
+}
+
+function sortCards(order) {
+  currentSort = order;
+  document.getElementById("sort-desc").classList.toggle("active", order === "desc");
+  document.getElementById("sort-asc").classList.toggle("active", order === "asc");
+  const sorted = [...DEMO_DATA].sort((a, b) => {
+    return order === "desc"
+      ? b.date.localeCompare(a.date)
+      : a.date.localeCompare(b.date);
+  });
+  renderCards(sorted);
+}
+
+sortCards("desc");
+</script>
+</body>
+</html>

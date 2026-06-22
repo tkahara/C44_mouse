@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns:th="http://thymeleaf.org" lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>【管理者】日付選択カレンダー</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        body { background-color: #f4f6f9; }
+        .calendar-table th, .calendar-table td { width: 14.28%; text-align: center; vertical-align: middle; height: 85px; }
+        .has-data { background-color: #ffc107 !important; font-weight: bold; border-radius: 8px; }
+        .has-data a { color: #212529; text-decoration: none; display: block; width: 100%; height: 100%; line-height: 65px; }
+        .is-today { border: 3px solid #0d6efd !important; }
+        .empty-day { background-color: #e9ecef; }
+    </style>
+</head>
+<body>
+<div class="container my-5" style="max-width: 850px;">
+
+    <!-- 管理者ヘッダー -->
+    <div class="card p-3 mb-4 bg-dark text-white d-flex flex-row justify-content-between align-items-center shadow-sm">
+        <h1 class="h4 mb-0">🛠️ 管理者専用：情報管理カレンダー</h1>
+        <div>
+            <!-- 🔄【404エラー対策】絶対パスを指定 -->
+            <a th:href="@{/admin}" class="btn btn-sm btn-outline-light me-2">管理メニュー</a>
+            <a th:href="@{/}" class="btn btn-sm btn-light">公開TOP</a>
+        </div>
+    </div>
+
+    <!-- カレンダー本体カード -->
+    <div class="card shadow p-4 bg-white">
+        
+        <!-- 月切り替えナビゲーション -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <a th:href="@{/admin/calendar(year=${prevMonthYear},month=${prevMonth})}" class="btn btn-sm btn-outline-secondary">&larr; 前の月</a>
+            <h2 class="h4 mb-0 text-dark font-weight-bold">
+                📅 <span th:text="${currentYear} + '年 ' + ${currentMonth} + '月'">2026年 06月</span>
+            </h2>
+            <a th:href="@{/admin/calendar(year=${nextMonthYear},month=${nextMonth})}" class="btn btn-sm btn-outline-secondary">次の月 &rarr;</a>
+        </div>
+
+        <!-- カレンダーテーブル -->
+        <table class="table table-bordered calendar-table shadow-sm">
+            <thead>
+                <tr class="table-secondary text-dark">
+                    <th class="text-danger">日</th><th>月</th><th>火</th><th>水</th><th>木</th><th>金</th><th class="text-info">土</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <th:block th:each="dayMap, iterStat : ${calendarDays}">
+                        <script th:if="${iterStat.index > 0 and iterStat.index % 7 == 0}">
+                            document.write('</tr><tr>');
+                        </script>
+                        
+                        <td th:class="${dayMap == null} ? 'empty-day' : (${dayMap.hasData} ? 'has-data' : '') + (${dayMap != null and dayMap.isToday} ? ' is-today' : '')">
+                            <div th:if="${dayMap != null and dayMap.hasData}">
+                                <!-- パス変数形式で管理リストへ安全に遷移 -->
+                                <a th:href="@{/admin/list/{date}(date=${dayMap.dateStr})}" th:text="${dayMap.dayNum}">1</a>
+                            </div>
+                            <div th:if="${dayMap != null and !dayMap.hasData}" th:text="${dayMap.dayNum}" class="text-muted">1</div>
+                        </td>
+                    </th:block>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="text-center mt-4 border-top pt-3">
+            <p class="text-muted small">※ <span class="badge bg-warning text-dark">黄色いマス</span> をクリックすると、その日に投稿された情報の編集・クレンジング・削除ができます。</p>
+            <a th:href="@{/admin/input}" class="btn btn-danger fw-bold mt-2">➕ 管理者として新規情報を登録</a>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

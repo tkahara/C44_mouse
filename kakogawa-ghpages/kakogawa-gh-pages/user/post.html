@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>取り締まり情報の投稿 | 加古川市 道路取り締まりポータル</title>
+<link rel="stylesheet" href="../css/style.css">
+<style>
+  .form-title { font-size: 2rem; font-weight: bold; text-align: center; color: #333; margin-bottom: 15px; letter-spacing: 0.05em; width: 100%; }
+  .form-desc { width: 100%; max-width: 480px; font-size: 1rem; line-height: 1.6; color: #666; text-align: center; margin: 0 auto 32px; }
+  .form-wrap { width: 100%; max-width: 480px; margin: 0 auto; }
+  .agree-box { background: #F8FCFF; border: 1px solid #E1F5FE; padding: 15px; border-radius: 12px; display: flex; align-items: flex-start; gap: 10px; }
+  .agree-box input[type=checkbox] { width: 20px; height: 20px; margin-top: 2px; cursor: pointer; flex-shrink: 0; }
+  .agree-box label { font-size: 0.95rem; font-weight: bold; color: #444; cursor: pointer; line-height: 1.5; }
+  .agree-box a { color: #0288D1; text-decoration: underline; }
+  .back-link { width: 100%; max-width: 680px; display: flex; justify-content: center; }
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <div class="outer-box">
+    <div class="inner-card" style="align-items:center; display:flex; flex-direction:column;">
+
+      <h1 class="form-title">🚨 取り締まり情報の投稿</h1>
+      <p class="form-desc">加古川市内での速度違反、一時停止違反などの目撃情報を共有してください。安全運転の向上につながります。</p>
+
+      <div class="demo-notice">
+        ⚠️ これはデモ表示です。このページはフォームの見た目を確認するためのものです。<br>
+        実際の投稿機能はサーバー動作時のみ利用できます。
+      </div>
+
+      <div class="form-wrap">
+        <div class="form-group">
+          <label class="form-label">👤 投稿者名 (任意)</label>
+          <input type="text" class="form-control" placeholder="例: 加古川のドライバー">
+        </div>
+        <div class="form-group">
+          <label class="form-label">📅 取り締まり日時 / 目撃日時</label>
+          <input type="datetime-local" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">📍 取り締まり場所</label>
+          <input type="text" class="form-control" placeholder="例: 国道2号線 加古川駅前交差点付近" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">💬 取り締まり内容・詳細情報</label>
+          <textarea class="form-control" placeholder="詳細な状況を入力してください（例: ネズミ捕りをやっていました。警察官が植え込みの陰に隠れています。）"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">📸 画像または動画の添付</label>
+          <input type="file" class="form-control" accept="image/*,video/*">
+          <div class="form-help">スマートフォンで撮影した写真やドラレコの動画ファイルを添付できます。</div>
+        </div>
+        <div class="form-group">
+          <div class="agree-box">
+            <input type="checkbox" id="agree" onchange="document.getElementById('submitBtn').disabled = !this.checked;">
+            <label for="agree">
+              投稿内容に責任を持ち、<a href="terms.html" target="_blank">免責事項および情報協力規約</a> に同意します。
+            </label>
+          </div>
+        </div>
+        <div style="display:flex; justify-content:center; margin-top:10px;">
+          <button type="button" id="submitBtn" class="submit-btn" disabled
+            onclick="alert('デモサイトのため送信できません。\n実際の投稿機能はサーバー動作時のみ利用できます。')">
+            <svg style="width:20px;height:20px;fill:none;stroke:#fff;stroke-width:2.5;stroke-linecap:round;" viewBox="0 0 24 24">
+              <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+            </svg>
+            <span>投稿を完了する</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  <div class="back-link">
+    <a href="../index.html" class="btn-back">一般公開サイトに戻る</a>
+  </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  document.getElementById("agree").checked = false;
+  document.getElementById("submitBtn").disabled = true;
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,159 @@
+@charset "UTF-8";
+
+/* ==========================================================================
+   1. 全体共通（黒背景・白文字・フォント設定）
+   ========================================================================== */
+body {
+    background-color: #121212 !important; /* 漆黒に近い背景 */
+    color: #e0e0e0 !important;           /* プレーンな白より目に優しい淡い白 */
+    font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
+    letter-spacing: 0.03em;
+}
+
+/* リンク全体の共通設定 */
+a {
+    color: #4ea8de;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+a:hover {
+    color: #90e0ef;
+}
+
+/* ==========================================================================
+   2. コンポーネント共通（ヘッダー・カード・入力フォーム）
+   ========================================================================== */
+/* グラデーションヘッダー（高級感のあるダークグレーから黒への流れ） */
+.custom-header {
+    background: linear-gradient(135deg, #1f1f1f 0%, #151515 100%) !important;
+    border: 1px solid #2d2d2d !important;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    padding: 20px;
+}
+
+/* コンテンツを囲むカードの共通装飾 */
+.custom-card {
+    background-color: #1e1e1e !important; /* 少し明るいダークグレーで立体感を出す */
+    border: 1px solid #2d2d2d !important;   /* 薄いグレーの境界線 */
+    border-radius: 12px !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4) !important;
+    padding: 25px;
+}
+
+/* 入力ボックス（input, textarea）の共通ダーク装飾 */
+.form-control {
+    background-color: #2a2a2a !important;
+    border: 1px solid #444444 !important;
+    color: #ffffff !important;
+    border-radius: 6px !important;
+}
+.form-control:focus {
+    background-color: #333333 !important;
+    border-color: #e63946 !important; /* フォーカス時に警告の赤を光らせる */
+    box-shadow: 0 0 8px rgba(230, 57, 70, 0.4) !important;
+}
+
+/* テーブルのダーク化（詳細画面用） */
+.table {
+    color: #e0e0e0 !important;
+    border-color: #3d3d3d !important;
+}
+.table th {
+    background-color: #252525 !important;
+    color: #ffffff !important;
+}
+.table td {
+    background-color: #1e1e1e !important;
+}
+
+/* ==========================================================================
+   3. ボタン・バッジのデザインデザイン
+   ========================================================================== */
+/* メインボタン（青アクセント） */
+.btn-custom-main {
+    background: linear-gradient(135deg, #0077b6 0%, #0096c7 100%) !important;
+    color: #ffffff !important;
+    border: none !important;
+    font-weight: bold !important;
+    padding: 10px 20px;
+    border-radius: 6px !important;
+    box-shadow: 0 4px 10px rgba(0, 119, 182, 0.3);
+}
+.btn-custom-main:hover {
+    background: linear-gradient(135deg, #0096c7 0%, #03045e 100%) !important;
+}
+
+/* 取り締まり・警告ボタン（赤アクセント） */
+.btn-custom-danger {
+    background: linear-gradient(135deg, #d90429 0%, #ef233c 100%) !important;
+    color: #ffffff !important;
+    border: none !important;
+    font-weight: bold !important;
+    padding: 10px 20px;
+    border-radius: 6px !important;
+    box-shadow: 0 4px 10px rgba(217, 4, 41, 0.3);
+}
+.btn-custom-danger:hover {
+    background: linear-gradient(135deg, #ef233c 0%, #b3001b 100%) !important;
+}
+
+/* 戻る・キャンセル用（シックなグレー） */
+.btn-custom-secondary {
+    background-color: #3a3a3a !important;
+    color: #b0b0b0 !important;
+    border: 1px solid #444444 !important;
+    border-radius: 6px !important;
+}
+.btn-custom-secondary:hover {
+    background-color: #4a4a4a !important;
+    color: #ffffff !important;
+}
+
+/* 管理者刻印用のバッジ */
+.badge-admin {
+    background-color: #ffb703 !important; /* 目立つゴールドイエロー */
+    color: #121212 !important;
+    font-weight: bold !important;
+}
+
+/* ==========================================================================
+   4. リストリンク・縦並び用装飾（list.html用）
+   ========================================================================== */
+/* 縦並びのリストアイテム */
+.custom-list-item {
+    background-color: #1e1e1e !important;
+    border: 1px solid #2d2d2d !important;
+    border-left: 5px solid #0096c7 !important; /* 左側に鮮やかな青のアクセント線 */
+    border-radius: 8px !important;
+    margin-bottom: 12px;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.25s ease;
+}
+
+/* 一般ユーザー投稿の左線を赤に変える（管理リスト用） */
+.custom-list-item.border-user {
+    border-left: 5px solid #ef233c !important;
+}
+
+/* リストにマウスを乗せたときのアニメーション（少し浮き出る） */
+.custom-list-item:hover {
+    background-color: #252525 !important;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* ==========================================================================
+   5. メディア（動画・画像）コンテナ
+   ========================================================================== */
+.media-container {
+    background-color: #0d0d0d !important;
+    border: 1px solid #333333;
+    padding: 15px;
+    border-radius: 8px;
+    margin-top: 20px;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.8);
+}

@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html xmlns:th="http://thymeleaf.org" lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理者ログイン</title>
+    
+	<style>
+	        /* 背景 */
+	        body {
+	            background-color: #FFFDF9 !important; 
+	            font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', sans-serif;
+	            min-height: 100vh;
+	            margin: 0;
+	        }
+
+	        /* 画面中央に配置するラッパー */
+	        .wrapper {
+	            min-height: 100vh;
+	            display: flex;
+	            align-items: center;
+	            justify-content: center;
+	            padding: 40px 20px;
+	            box-sizing: border-box;
+	        }
+
+	        /* 外側の枠（管理者共通：オレンジの斜めストライプ） */
+	        .outer-box {
+	            width: 100%;
+	            max-width: 600px; /* 💡 680pxから600pxへ、全体を一回りスマートに */
+	            background-color: #ffffff;
+	            background-image: linear-gradient(
+	                -45deg, 
+	                rgba(255, 152, 0, 0.15) 25%, 
+	                transparent 25%, 
+	                transparent 50%, 
+	                rgba(255, 152, 0, 0.15) 50%, 
+	                rgba(255, 152, 0, 0.15) 75%, 
+	                transparent 75%, 
+	                transparent
+	            );
+	            background-size: 40px 40px; 
+	            border: 3px solid #FFB74D; 
+	            border-radius: 24px; 
+	            padding: 35px; /* 💡 40pxから35pxへ少し縮小 */
+	            box-shadow: 0 12px 35px rgba(255, 152, 0, 0.1); 
+	            box-sizing: border-box;
+	        }
+
+	        /* 外側上部のタイトル */
+	        .outer-title {
+	            text-align: center;
+	            font-size: 1.4rem; /* 💡 1.6remから1.4remへ少し縮小 */
+	            font-weight: bold;
+	            color: #E65100; 
+	            margin-bottom: 25px;
+	            text-shadow: 0 0 10px #ffffff, 0 0 10px #ffffff;
+	            line-height: 1.4;
+	        }
+
+	        /* 内側の白いログインカード */
+	        .login-card {
+	            background-color: #ffffff;
+	            border: 1px solid #FFE0B2; 
+	            border-radius: 16px; 
+	            padding: 40px 20px; /* 💡 上下の余白を50pxから40pxへ縮小 */
+	            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+	            box-sizing: border-box;
+	            display: flex;
+	            flex-direction: column;
+	            align-items: center;
+	            width: 100%;
+	        }
+
+	        /* カード内のメインタイトル */
+	        .inner-title {
+	            font-size: 1.75rem !important; /* 💡 2remから1.75remへ少し縮小 */
+	            font-weight: bold;
+	            text-align: center;
+	            color: #333333;
+	            margin-bottom: 35px; /* 💡 45pxから35pxへ縮小 */
+	            width: 100%;
+	            margin-top: 0;
+	            line-height: 1.3;
+	        }
+
+	        /* エラーメッセージ */
+	        .custom-error-alert {
+	            width: 100%;
+	            max-width: 360px;
+	            background-color: #f8d7da;
+	            color: #721c24;
+	            border: 1px solid #f5c6cb;
+	            padding: 0.9rem;
+	            margin-bottom: 1.2rem;
+	            border-radius: 8px;
+	            text-align: center;
+	            box-sizing: border-box;
+	            font-weight: bold;
+	            font-size: 0.9rem;
+	        }
+
+	        /* フォーム自体の幅設定 */
+	        .login-form {
+	            width: 100%;
+	            display: flex;
+	            flex-direction: column;
+	            align-items: stretch;
+	        }
+
+	        /* 全パーツの横幅を固定する箱 */
+	        .perfect-fit-box {
+	            width: 100% !important; 
+	            max-width: 360px !important; /* 💡 380pxから360pxへ、横幅を引き締め */
+	            box-sizing: border-box !important; 
+	            margin-bottom: 1.25rem;
+	            margin-left: auto;
+	            margin-right: auto;
+	        }
+
+	        /* ボタン専用の余白調整 */
+	        .perfect-fit-box.btn-box {
+	            margin-top: 0.75rem;
+	            margin-bottom: 0;
+	        }
+
+	        /* フォームのラベル */
+	        .form-label-top {
+	            display: block;
+	            font-size: 1.15rem !important; /* 💡 1.25remから1.15remへ少し縮小 */
+	            font-weight: bold;
+	            color: #444444;
+	            margin-bottom: 8px; 
+	            text-align: left; 
+	            padding-left: 4px; 
+	        }
+
+	        /* 入力フォーム */
+	        .form-control {
+	            border: 2px solid #CBDCDA !important;
+	            border-radius: 12px !important; 
+	            padding: 0.9rem 1.2rem !important; /* 💡 上下左右の余白を少し削ってスマートに */
+	            font-size: 1.15rem !important; /* 💡 1.25remから1.15remへ少し縮小 */
+	            text-align: left; 
+	            transition: all 0.2s ease;
+	            width: 100% !important; 
+	            display: block !important;
+	            box-sizing: border-box;
+	            background-color: #ffffff;
+	            color: #333333;
+	        }
+
+	        /* フォーカス時の色 */
+	        .form-control:focus {
+	            border-color: #FF9800 !important; 
+	            box-shadow: 0 0 0 5px rgba(255, 152, 0, 0.2) !important;
+	            outline: none;
+	        }
+
+	        /* ✨ ログインボタン ✨ */
+	        .custom-submit-btn {
+	            width: 100% !important; 
+	            min-width: 100% !important;
+	            max-width: 100% !important;
+	            display: block !important;
+	            box-sizing: border-box !important;
+	            background: linear-gradient(180deg, #FFA726 0%, #FB8C00 40%, #EF6C00 100%) !important; 
+	            border-top: 1px solid #FFCC80 !important;
+	            border-left: none !important;
+	            border-right: none !important;
+	            border-bottom: 5px solid #B35400 !important; 
+	            border-radius: 16px !important; 
+	            padding: 0.95rem 0 !important; /* 💡 1.1remから0.95remへ、高さを少しスマートに */
+	            font-size: 1.25rem !important; /* 💡 1.4remから1.25remへ少し縮小 */
+	            letter-spacing: 0.2em;
+	            font-weight: bold;
+	            color: #ffffff !important;
+	            text-align: center; 
+	            cursor: pointer;
+	            transition: all 0.1s ease !important;
+	            box-shadow: 0 8px 20px rgba(239, 108, 0, 0.3) !important; 
+	            margin: 0 !important;
+	            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+	        }
+	        .custom-submit-btn:hover {
+	            background: linear-gradient(180deg, #FFB74D 0%, #FFA000 40%, #E65100 100%) !important;
+	            box-shadow: 0 10px 25px rgba(239, 108, 0, 0.4) !important;
+	        }
+	        .custom-submit-btn:active {
+	            border-bottom: 2px solid #B35400 !important; 
+	            transform: translateY(3px); 
+	            box-shadow: 0 4px 10px rgba(239, 108, 0, 0.2) !important;
+	        }
+
+        /* フッターのリンク */
+		 .back-link-container {
+		                margin-top: 25px;
+		            }
+		            .btn-return-public {
+		                font-size: 1.1rem !important;
+		                padding: 0.9rem 0 !important;
+		                border-radius: 14px !important;
+		            }
+
+		        /* ----------------------------------
+		         * ✨ 新規追加：「一般公開サイトに戻る」ボタンの個別スタイル ✨
+		         * ---------------------------------- */
+		        .back-link-container {
+		            width: 100%;
+		            max-width: 380px; /* 上のログインボタンと横幅をジャストで合わせる */
+		            text-align: center;
+		            margin-top: 35px; /* 上の白いカードとの綺麗な隙間を確保 */
+		            box-sizing: border-box;
+		            margin-left: auto;
+		            margin-right: auto;
+		        }
+
+		        .btn-return-public {
+		            display: flex !important;
+		            align-items: center;
+		            justify-content: center;
+		            width: 100%;
+		            padding: 1.1rem 0 !important; /* 上のログインボタンの肉厚感に高さを統一 */
+		            box-sizing: border-box !important;
+		            text-decoration: none !important;
+		            
+		            /* 背景と枠線設定（画像通りの白背景＋オレンジ枠） */
+		            background-color: #ffffff !important;
+		            border: 2px solid #FFB74D !important; 
+		            border-radius: 16px !important; /* 角丸の統一 */
+		            
+		            font-size: 1.25rem !important;
+		            font-weight: bold;
+		            cursor: pointer;
+		            transition: all 0.2s ease !important;
+		        }
+
+		        /* 🎨 文字のオレンジグラデーション設定 */
+		        .btn-return-public .gradient-text {
+		            background: linear-gradient(to right, #FF7043 0%, #FFA726 100%) !important;
+		            -webkit-background-clip: text !important;
+		            -webkit-text-fill-color: transparent !important;
+		            background-clip: text !important;
+		            text-fill-color: transparent !important;
+		            display: inline-block;
+		        }
+
+		        /* ホバー（マウスを載せたとき）の効果 */
+		        .btn-return-public:hover {
+		            background-color: #FFFDF9 !important;
+		            border-color: #FFA000 !important;
+		            box-shadow: 0 4px 12px rgba(255, 152, 0, 0.1);
+		        }
+		        
+		        /* クリックした瞬間の効果 */
+		        .btn-return-public:active {
+		            transform: scale(0.99);
+		            box-shadow: none;
+		        }
+		    </style>
+		</head>
+		<body>
+
+		<div class="wrapper">
+		    <div class="outer-box">
+		        
+		        <div class="outer-title">
+		            加古川市情報管理システム (管理者ログイン用画面)
+		        </div>
+
+		        <div class="login-card">
+		            <h1 class="inner-title">管理者ログイン</h1>
+
+		            <div th:if="${param.error}" class="custom-error-alert">
+		                ユーザー名またはパスワードが正しくありません。
+		            </div>
+
+					<!-- 🔄【404/500エラー解決】送信先のパスを認証ゲートである絶対パス「@{/login}」へピンポイント修正 -->
+					<form th:action="@{/login}" method="post" class="login-form">
+					    <div class="perfect-fit-box"> 
+					        <label class="form-label-top">ID</label>
+					        <input type="text" name="username" class="form-control" required autofocus>
+					    </div>
+					    
+					    <div class="perfect-fit-box"> 
+					        <label class="form-label-top">パスワード</label>
+					        <input type="password" name="password" class="form-control" required>
+					    </div>
+					    
+					    <div class="perfect-fit-box btn-box"> 
+					        <button type="submit" class="custom-submit-btn">ログイン</button>
+					    </div>
+					</form>
+
+		        </div>
+
+		        <!-- ✨ 矢印を消し、画像通りの洗練されたデザインに変更した戻るリンク ✨ -->
+		        <div class="back-link-container">
+		            <a th:href="@{/}" class="btn-return-public">
+		                <span class="gradient-text">一般公開サイトに戻る</span>
+		            </a>
+		        </div>
+
+		    </div>
+		</div>
+
+		</body>
+		</html>
